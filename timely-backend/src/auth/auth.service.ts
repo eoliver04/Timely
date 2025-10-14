@@ -5,7 +5,7 @@ import { AuthDto } from './dto/auth.dto';
 @Injectable()
 export class AuthService {
     async register(userDto:AuthDto){
-        
+        await clearSupabaseSession();
         const {data,error}=await supabase.auth.signUp({
             email:userDto.email,
             password:userDto.password,
@@ -42,7 +42,7 @@ export class AuthService {
     }
 
     async login(email:string,password:string){
-        
+        await clearSupabaseSession();
         const{data,error}=await supabase.auth.signInWithPassword({email,password});
         if(error){
             throw new UnauthorizedException(error.message);
