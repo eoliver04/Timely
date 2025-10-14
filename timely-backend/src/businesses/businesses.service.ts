@@ -6,9 +6,11 @@ import { CreateBusinessDTO, UpdateBusinessDTO } from './dto/businesses.dto';
 export class BusinessesService {
   //crear un negocio
 
-  async createBusiness(businessesData: CreateBusinessDTO, ownerId: string) {
+  async createBusiness(businessesData: CreateBusinessDTO, ownerId: string, authHeader?: string) {
+    const token = authHeader?.split(' ')[1];
+    const sb = token ? createSupabaseClientForToken(token) : supabase;
     
-    const { data, error } = await supabase
+    const { data, error } = await sb
       .from('Businesses')
       .insert({
         ...businessesData,
@@ -37,9 +39,11 @@ export class BusinessesService {
       return data;
   }
   //retorna un nnegocio por un id 
-  async getBussinesById(id:string){
+  async getBussinesById(id: string, authHeader?: string){
+    const token = authHeader?.split(' ')[1];
+    const sb = token ? createSupabaseClientForToken(token) : supabase;
      
-    const{data,error}=await supabase
+    const{data,error}=await sb
       .from('Businesses')
       .select('*')
       .eq('id', id)
@@ -53,9 +57,11 @@ export class BusinessesService {
 
   //update business 
   
-  async updateBusiness(id:string, updateData: UpdateBusinessDTO){
+  async updateBusiness(id: string, updateData: UpdateBusinessDTO, authHeader?: string){
+    const token = authHeader?.split(' ')[1];
+    const sb = token ? createSupabaseClientForToken(token) : supabase;
     
-    const {data,error}=await supabase 
+    const {data,error}=await sb 
       .from('Businesses')
       .update(updateData)
       .eq('id', id)
@@ -68,9 +74,11 @@ export class BusinessesService {
     return data;
   }
   //retona los negocios de un admin
-  async getBusinessesByAdmin(adminId:string){
+  async getBusinessesByAdmin(adminId: string, authHeader?: string){
+    const token = authHeader?.split(' ')[1];
+    const sb = token ? createSupabaseClientForToken(token) : supabase;
     
-    const{data,error}=await supabase
+    const{data,error}=await sb
       .from('Businesses')
       .select('*')
       .eq('owner_id',adminId)
@@ -82,9 +90,11 @@ export class BusinessesService {
   }
 
   //eliminar negocio
-  async deleteBusiness(id:string){
+  async deleteBusiness(id: string, authHeader?: string){
+    const token = authHeader?.split(' ')[1];
+    const sb = token ? createSupabaseClientForToken(token) : supabase;
     
-    const {data,error}=await supabase
+    const {data,error}=await sb
       .from('Businesses')
       .delete()
       .eq('id',id)
