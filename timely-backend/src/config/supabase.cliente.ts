@@ -23,7 +23,9 @@ export const clearSupabaseSession=async()=>{
 }
 
 export function createSupabaseClientForToken(token?: string): SupabaseClient {
-  return createClient(supabaseUrl, supabaseKey, {
+  console.log('🔧 [createSupabaseClientForToken] Creando cliente con token:', token ? `${token.substring(0, 20)}...` : 'NO TOKEN');
+  
+  const client = createClient(supabaseUrl, supabaseKey, {
     auth: {
       persistSession: false,
       autoRefreshToken: false,
@@ -35,5 +37,11 @@ export function createSupabaseClientForToken(token?: string): SupabaseClient {
       }
     }
   });
+  
+  console.log('🔧 [createSupabaseClientForToken] Cliente creado con headers:', {
+    Authorization: token ? `Bearer ${token.substring(0, 20)}...` : 'undefined'
+  });
+  
+  return client;
 }
 
