@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { clearSupabaseSession, supabase } from 'src/config/supabase.cliente';
+import { clearSupabaseSession, createSupabaseClientForToken, supabase } from 'src/config/supabase.cliente';
 import { CreateBusinessDTO, UpdateBusinessDTO } from './dto/businesses.dto';
 
 @Injectable()
@@ -24,9 +24,10 @@ export class BusinessesService {
     return data;
   }
   //retirnar la lista de nogocios
-  async getAllBusinesses(){
-    
-    const {data,error}=await supabase 
+  async getAllBusinesses(authHeader?:string){
+    const token=authHeader?.split(' ')[1];
+    const sb = token? createSupabaseClientForToken(token):supabase;
+    const {data,error}=await sb 
       .from('Businesses')
       .select('*')
 
