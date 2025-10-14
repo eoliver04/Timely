@@ -24,8 +24,16 @@ export class BusinessesController {
     @UseGuards(BusinessesGuard)
     @Get()
     async getAllBusinesses(@Req() req: any){
+      console.log('🎯 [Controller] getAllBusinesses iniciado');
+      console.log('🎯 [Controller] Usuario en request:', req.user);
+      
       const authHeader = req.headers.authorization;
-      return this.businessesService.getAllBusinesses(authHeader);
+      console.log('🎯 [Controller] authHeader:', authHeader ? `Bearer ${authHeader.split(' ')[1]?.substring(0, 20)}...` : 'No header');
+      
+      const result = await this.businessesService.getAllBusinesses(authHeader);
+      console.log('🎯 [Controller] Resultado del service:', result);
+      
+      return result;
     }
     //retorna un negocio por un id
     @UseGuards(BusinessesGuard)
