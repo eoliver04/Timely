@@ -12,6 +12,7 @@ async function bootstrap() {
       'http://localhost:3001',  // Tu frontend Next.js
       'http://localhost:3002',  
       'http://127.0.0.1:3001',
+      'https://timely-weld-delta.vercel.app',
     ],
     methods:['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: [

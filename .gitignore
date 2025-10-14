@@ -1,0 +1,8 @@
+# Ignorar archivos de entorno
+.env
+*.env
+.env.local
+
+node_modules
+
+timely-backend/toke.ts
