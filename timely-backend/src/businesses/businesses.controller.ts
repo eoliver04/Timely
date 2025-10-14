@@ -14,47 +14,53 @@ export class BusinessesController {
     @Post()
     async createBusines(@Req()req,@Body() createBusiness:CreateBusinessDTO ){
       const ownerId=req.user.id;
+      const authHeader = req.headers.authorization;
       if(req.user.role!=='admin'){
         throw new UnauthorizedException('Only admins can create a business');
       }
-      return this.businessesService.createBusiness(createBusiness,ownerId);
+      return this.businessesService.createBusiness(createBusiness,ownerId, authHeader);
     }
     //retorna una lista con todos los negocios
     @UseGuards(BusinessesGuard)
     @Get()
-    async getAllBusinesses(){
-      return this.businessesService.getAllBusinesses();
+    async getAllBusinesses(@Req() req: any){
+      const authHeader = req.headers.authorization;
+      return this.businessesService.getAllBusinesses(authHeader);
     }
     //retorna un negocio por un id
     @UseGuards(BusinessesGuard)
     @Get(':id')
-    async getBussinesByid(@Param('id') id: string){
-      return this.businessesService.getBussinesById(id);
+    async getBussinesByid(@Param('id') id: string, @Req() req: any){
+      const authHeader = req.headers.authorization;
+      return this.businessesService.getBussinesById(id, authHeader);
     }
     //para update business
     @UseGuards(BusinessesGuard,AdminBusinessGuard)
     @Patch(':id')
     async updateBusiness(@Param('id') businessId: string, @Body()updateData:UpdateBusinessDTO,@Req()req){
       const ownerId=req.user.id;
+      const authHeader = req.headers.authorization;
       if(req.user.role!=='admin'){
         throw new UnauthorizedException('Only admins can update a business');
       }
-      return this.businessesService.updateBusiness(businessId, updateData);
+      return this.businessesService.updateBusiness(businessId, updateData, authHeader);
     }
     //retornar negocios de un usuario
     @UseGuards(BusinessesGuard,AdminAccessGuard)
     @Get('admin/:adminId')
     async getBusinessesByAdmin(@Param('adminId') adminId:string,@Req()req){
-      return this.businessesService.getBusinessesByAdmin(adminId);
+      const authHeader = req.headers.authorization;
+      return this.businessesService.getBusinessesByAdmin(adminId, authHeader);
     }
 
     //eliminar business
     @UseGuards(BusinessesGuard,AdminBusinessGuard)
     @Delete(':id')
     async deleteBusiness(@Param('id')id:string,@Req()req){
+      const authHeader = req.headers.authorization;
       if(req.user.role !=='admin'){
         throw new UnauthorizedException('Only admins can delete a business');
       }
-      return this.businessesService.deleteBusiness(id);
+      return this.businessesService.deleteBusiness(id, authHeader);
     }
 }
