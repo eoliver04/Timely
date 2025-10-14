@@ -22,4 +22,18 @@ export const clearSupabaseSession=async()=>{
    }
 }
 
+export function createSupabaseClientForToken(token?: string): SupabaseClient {
+  return createClient(supabaseUrl, supabaseKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+    global: {
+      headers: {
+        Authorization: token ? `Bearer ${token}` : undefined,
+      }
+    }
+  });
+}
 
