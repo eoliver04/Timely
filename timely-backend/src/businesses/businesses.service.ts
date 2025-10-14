@@ -25,7 +25,7 @@ export class BusinessesService {
   }
   //retirnar la lista de nogocios
   async getAllBusinesses(){
-    await clearSupabaseSession();
+    
     const {data,error}=await supabase 
       .from('Businesses')
       .select('*')
