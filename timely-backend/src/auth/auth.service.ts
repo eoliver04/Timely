@@ -1,5 +1,5 @@
 import { Injectable,UnauthorizedException } from '@nestjs/common';
-import { clearSupabaseSession, supabase } from 'src/config/supabase.cliente';
+import {  supabase } from 'src/config/supabase.cliente';
 import { AuthDto } from './dto/auth.dto';
 
 @Injectable()
@@ -19,6 +19,7 @@ export class AuthService {
         })
         if(error){
             throw new UnauthorizedException(error.message);
+            
         }
         
         //gaurdar el nombre de usuario y telefono y estatus en la tabla x

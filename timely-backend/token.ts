@@ -2,7 +2,8 @@ import { createClient } from '@supabase/supabase-js';
 
 // Configura tu URL y clave pública de Supabase
 const supabaseUrl = 'https://xyinlbwipdupxahnyiid.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh5aW5sYndpcGR1cHhhaG55aWlkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1OTAwNjMwOSwiZXhwIjoyMDc0NTgyMzA5fQ.PtgYW7fjapn5o5u2if-7TZOcstUQs7as83UVG2tnNpw'; // Usa la clave pública (anon key)
+const supabaseKey =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh5aW5sYndpcGR1cHhhaG55aWlkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1OTAwNjMwOSwiZXhwIjoyMDc0NTgyMzA5fQ.PtgYW7fjapn5o5u2if-7TZOcstUQs7as83UVG2tnNpw'; // Usa la clave pública (anon key)
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
