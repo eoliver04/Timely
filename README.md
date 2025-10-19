@@ -1,2 +1,2 @@
 # Timely
-This repo has the backned of Timely.com
+This repo has the backend of Timely.com
