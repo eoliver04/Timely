@@ -22,7 +22,8 @@ export function Navbar() {
 
   const navItems = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/businesses", label: "Negocios", icon: Building2 },
+    { href: "/businesses", label: "Todos los Negocios", icon: Building2 },
+    { href: "/my-businesses", label: "Mis Negocios", icon: Building2 },
     { href: "/appointments", label: "Reservas", icon: Calendar },
   ]
 
