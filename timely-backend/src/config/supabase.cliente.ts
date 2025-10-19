@@ -14,16 +14,9 @@ export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseKey,{
     }
 });
 
-export const clearSupabaseSession=async()=>{
-   try{
-     await supabase.auth.signOut();
-   }catch(error){
-    console.log("Error limpiar session",error.message);
-   }
-}
+
 
 export function createSupabaseClientForToken(token?: string): SupabaseClient {
-  console.log('🔧 [createSupabaseClientForToken] Creando cliente con token:', token ? `${token.substring(0, 20)}...` : 'NO TOKEN');
   
   const client = createClient(supabaseUrl, supabaseKey, {
     auth: {
@@ -38,9 +31,7 @@ export function createSupabaseClientForToken(token?: string): SupabaseClient {
     }
   });
   
-  console.log('🔧 [createSupabaseClientForToken] Cliente creado con headers:', {
-    Authorization: token ? `Bearer ${token.substring(0, 20)}...` : 'undefined'
-  });
+  
   
   return client;
 }

@@ -84,17 +84,34 @@ export async function getBusinesses() {
 
 export async function createBusiness(data: {
   name: string
-  adress: string  // Nota: tu backend usa 'adress' no 'address'
+  address: string  // Corregido: adress -> address
   phone: string
   info?: string
 }) {
+  console.log("🏢 === CREATING BUSINESS ===")
+  console.log("📝 Data enviada:", data)
+  
+  const headers = await getHeaders()
+  console.log("📝 Headers:", headers)
+  
   const response = await fetch(`${API_BASE_URL}/businesses`, {
     method: "POST",
-    headers: await getHeaders(),
+    headers: headers,
     body: JSON.stringify(data),
   })
-  if (!response.ok) throw new Error("Failed to create business")
-  return response.json()
+  
+  console.log("📊 Response status:", response.status)
+  console.log("📊 Response ok:", response.ok)
+  
+  if (!response.ok) {
+    const errorText = await response.text()
+    console.error("❌ Error creating business:", errorText)
+    throw new Error(`Failed to create business: ${response.status} - ${errorText}`)
+  }
+  
+  const result = await response.json()
+  console.log("✅ Business created:", result)
+  return result
 }
 
 // Auth API calls

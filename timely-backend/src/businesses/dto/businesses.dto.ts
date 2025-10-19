@@ -6,7 +6,7 @@ export class CreateBusinessDTO {
     name?:string;
 
     @IsString()
-    adress?:string;
+    address?:string;  // Corregido: adress -> address
 
     @IsOptional()
     @IsString()
