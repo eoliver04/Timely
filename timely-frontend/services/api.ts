@@ -114,6 +114,46 @@ export async function createBusiness(data: {
   return result
 }
 
+// Nueva función: Obtener MIS negocios (como admin)
+export async function getMyBusinesses() {
+  console.log("🏢 === GETTING MY BUSINESSES ===")
+  
+  const headers = await getHeaders()
+  const token = localStorage.getItem("access_token")
+  
+  if (!token) {
+    throw new Error("No authentication token found")
+  }
+
+  // Decodificar token para obtener el user ID
+  const parts = token.split('.')
+  if (parts.length !== 3) {
+    throw new Error("Invalid token format")
+  }
+  
+  const payload = JSON.parse(atob(parts[1]))
+  const userId = payload.sub
+  
+  console.log("📝 User ID:", userId)
+  
+  const response = await fetch(`${API_BASE_URL}/businesses/admin/${userId}`, {
+    method: 'GET',
+    headers: headers,
+  })
+  
+  console.log("📊 Response status:", response.status)
+  
+  if (!response.ok) {
+    const errorText = await response.text()
+    console.error("❌ Error fetching my businesses:", errorText)
+    throw new Error(`Failed to fetch my businesses: ${response.status} - ${errorText}`)
+  }
+  
+  const data = await response.json()
+  console.log("✅ My businesses:", data)
+  return data
+}
+
 // Auth API calls
 export async function register(data: {
   name: string
