@@ -1,6 +1,13 @@
 // API service to connect with NestJS backend
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
 
+// Debug: Forzar verificación de URL en build
+if (typeof window !== 'undefined') {
+  console.log('🔧 [API CONFIG] API_BASE_URL:', API_BASE_URL);
+  console.log('🔧 [API CONFIG] process.env.NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
+  console.log('🔧 [API CONFIG] Build timestamp:', new Date().toISOString());
+}
+
 // Función de debug para probar el token
 export async function debugToken() {
   const token = localStorage.getItem("access_token")
