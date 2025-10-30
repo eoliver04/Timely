@@ -318,3 +318,43 @@ export async function updateUserProfile(data: {
   if (!response.ok) throw new Error("Failed to update user profile")
   return response.json()
 }
+
+// Schedules API calls
+export async function createSchedule(businessId: string, data: {
+  date: string
+  start_time: string
+  end_time: string
+  available: boolean
+}) {
+  console.log("📅 === CREATING SCHEDULE ===")
+  console.log("📝 Business ID:", businessId)
+  console.log("📝 Schedule data:", data)
+  
+  const headers = await getHeaders()
+  const token = localStorage.getItem("access_token")
+  
+  if (!token) {
+    throw new Error("No authentication token found")
+  }
+
+  console.log("📝 Headers:", headers)
+  console.log("🚀 URL:", `${API_BASE_URL}/schedules/business/${businessId}`)
+  
+  const response = await fetch(`${API_BASE_URL}/schedules/business/${businessId}`, {
+    method: "POST",
+    headers: headers,
+    body: JSON.stringify(data),
+  })
+  
+  console.log("📊 Response status:", response.status)
+  
+  if (!response.ok) {
+    const errorText = await response.text()
+    console.error("❌ Error creating schedule:", errorText)
+    throw new Error(`Failed to create schedule: ${response.status} - ${errorText}`)
+  }
+  
+  const result = await response.json()
+  console.log("✅ Schedule created:", result)
+  return result
+}

@@ -25,7 +25,7 @@ export class BusinessesService {
 
     return data;
   }
-  //retirnar la lista de nogocios
+  //retornar la lista de nogocios
   async getAllBusinesses(authHeader?:string){
     
     const token=authHeader?.split(' ')[1];
@@ -46,7 +46,7 @@ export class BusinessesService {
       
       return data;
   }
-  //retorna un nnegocio por un id 
+  //retorna un negocio por un id 
   async getBussinesById(id: string, authHeader?: string){
     const token = authHeader?.split(' ')[1];
     const sb = token ? createSupabaseClientForToken(token) : supabase;

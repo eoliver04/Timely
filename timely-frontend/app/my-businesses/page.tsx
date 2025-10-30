@@ -7,7 +7,7 @@ import { ProtectedRoute } from "@/components/protected-route"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Plus, Building, Phone, MapPin, Edit, Trash2 } from "lucide-react"
+import { Plus, Building, Phone, MapPin, Edit, Trash2, Calendar } from "lucide-react"
 
 interface Business {
   id: string
@@ -133,10 +133,18 @@ export default function MyBusinessesPage() {
                         variant="outline" 
                         size="sm" 
                         className="flex-1 gap-2"
+                        onClick={() => router.push(`/my-businesses/${business.id}/schedules/new`)}
+                      >
+                        <Calendar className="h-4 w-4" />
+                        Horarios
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="gap-2"
                         onClick={() => router.push(`/businesses/${business.id}`)}
                       >
                         <Edit className="h-4 w-4" />
-                        Editar
                       </Button>
                       <Button 
                         variant="outline" 
