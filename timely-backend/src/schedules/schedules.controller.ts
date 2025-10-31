@@ -26,7 +26,7 @@ export class SchedulesController {
     @Headers('authorization') authHeader: string,
   ) {
     const token = authHeader.replace('Bearer ', '');
-    return this.schedulesService.createSchedule(scheduleData, businessId);
+    return this.schedulesService.createSchedule(scheduleData, businessId,token);
   }
 
   //obtencion de los horarios
