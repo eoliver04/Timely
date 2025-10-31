@@ -13,6 +13,7 @@ async function bootstrap() {
       'http://localhost:3002',  
       'http://127.0.0.1:3001',
       'https://timely-omega-eight.vercel.app',
+      'https://timely-git-dev-eolover04s-projects.vercel.app/'//branch dev 
     ],
     methods:['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: [

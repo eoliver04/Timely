@@ -1,11 +1,20 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { supabase } from 'src/config/supabase.cliente';
+import {
+  createSupabaseClientForToken,
+  supabase,
+} from 'src/config/supabase.cliente';
 import { ShedulesData, UpdateSchedules } from './dto/schedules.dto';
 @Injectable()
 export class SchedulesService {
   //crear un nuevo horario
-  async createSchedule(scheduleContent: ShedulesData, bussinesID: string) {
-    const { data, error } = await supabase
+  async createSchedule(
+    scheduleContent: ShedulesData,
+    bussinesID: string,
+    authHeader?: string,
+  ) {
+    const token = authHeader.split(' ')[1];
+    const sb = createSupabaseClientForToken(token);
+    const { data, error } = await sb
       .from('Schedules')
       .insert({
         business_id: bussinesID,
@@ -39,31 +48,29 @@ export class SchedulesService {
     return data;
   }
 
-  //update horarios 
-  async updateSchedules(bussines_ID,updateData:UpdateSchedules){
-    const {data,error}=await supabase 
-        .from('Schedules')
-        .update(updateData)
-        .eq('bussines_id',bussines_ID)
-        .select('*')
-        .single();
-    if(error){
-        throw new BadRequestException(error.message);
-    }    
+  //update horarios
+  async updateSchedules(bussines_ID, updateData: UpdateSchedules) {
+    const { data, error } = await supabase
+      .from('Schedules')
+      .update(updateData)
+      .eq('bussines_id', bussines_ID)
+      .select('*')
+      .single();
+    if (error) {
+      throw new BadRequestException(error.message);
+    }
 
     return data;
-        
   }
 
-  //elimiinar horario 
-  async deleteSchedules(schedule_id){
-    const {data,error}=await supabase
-        .from('Schedules')
-        .delete()
-        .eq('id',schedule_id)
-    if(error){
-        throw new Error(error.message);
-    }    
-        
+  //elimiinar horario
+  async deleteSchedules(schedule_id) {
+    const { data, error } = await supabase
+      .from('Schedules')
+      .delete()
+      .eq('id', schedule_id);
+    if (error) {
+      throw new Error(error.message);
+    }
   }
 }

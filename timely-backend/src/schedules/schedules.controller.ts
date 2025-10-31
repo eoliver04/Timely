@@ -1,4 +1,13 @@
-import { Controller, Param, Post, Body, UseGuards,Get, Query } from '@nestjs/common';
+import {
+  Controller,
+  Param,
+  Post,
+  Body,
+  UseGuards,
+  Get,
+  Query,
+  Headers,
+} from '@nestjs/common';
 import { SchedulesService } from './schedules.service';
 import { ShedulesData } from './dto/schedules.dto';
 import { SchedulesOwnerGuard } from './schedules.guard';
@@ -14,18 +23,19 @@ export class SchedulesController {
   async createSchedule(
     @Param('businessID') businessId: string,
     @Body() scheduleData: ShedulesData,
+    @Headers('authorization') authHeader: string,
   ) {
+    const token = authHeader.replace('Bearer ', '');
     return this.schedulesService.createSchedule(scheduleData, businessId);
   }
 
   //obtencion de los horarios
- 
+
   @Get('business/:businessID')
   async getSchedules(
-    @Param('businessID') businessID:string,
-    @Query ('date') date:string
-  ){
-    return this.schedulesService.getSchedule(businessID,date);
+    @Param('businessID') businessID: string,
+    @Query('date') date: string,
+  ) {
+    return this.schedulesService.getSchedule(businessID, date);
   }
-
 }
