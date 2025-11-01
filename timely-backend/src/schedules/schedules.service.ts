@@ -10,7 +10,7 @@ export class SchedulesService {
   async createSchedule(
     scheduleContent: ShedulesData,
     bussinesID: string,
-    authHeader?: string,
+    authHeader: string,
   ) {
     const token = authHeader.split(' ')[1];
     const sb = createSupabaseClientForToken(token);
@@ -34,11 +34,11 @@ export class SchedulesService {
   }
 
   //obtener los horarios de un negocio para un dia
-  async getSchedule(bussines_ID, date) {
+  async getSchedule(bussinesId:string, date?:string) {
     const { data, error } = await supabase
       .from('Schedules')
       .select('*')
-      .eq('business_id', bussines_ID)
+      .eq('business_id', bussinesId)
       .eq('date', date);
 
     if (error) {
@@ -49,11 +49,20 @@ export class SchedulesService {
   }
 
   //update horarios
-  async updateSchedules(bussines_ID, updateData: UpdateSchedules) {
-    const { data, error } = await supabase
+  async updateSchedules(
+    scheduleId:string,
+    updateData: UpdateSchedules,
+    authHeader?: string,
+  ) {
+    if(!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new BadRequestException('Invalid token');
+    }
+    const token = authHeader.split(' ')[1];
+    const sb=createSupabaseClientForToken(token);
+    const { data, error } = await sb
       .from('Schedules')
       .update(updateData)
-      .eq('bussines_id', bussines_ID)
+      .eq('id', scheduleId)
       .select('*')
       .single();
     if (error) {

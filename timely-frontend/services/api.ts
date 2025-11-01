@@ -358,3 +358,104 @@ export async function createSchedule(businessId: string, data: {
   console.log("✅ Schedule created:", result)
   return result
 }
+
+// Obtener horarios de un negocio
+export async function getSchedules(businessId: string, date?: string) {
+  console.log("📅 === GETTING SCHEDULES ===")
+  console.log("📝 Business ID:", businessId)
+  console.log("📝 Date filter:", date || "none")
+  
+  let url = `${API_BASE_URL}/schedules/business/${businessId}`
+  if (date) {
+    url += `?date=${date}`
+  }
+  
+  console.log("🚀 URL:", url)
+  
+  const response = await fetch(url, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  })
+  
+  console.log("📊 Response status:", response.status)
+  
+  if (!response.ok) {
+    const errorText = await response.text()
+    console.error("❌ Error getting schedules:", errorText)
+    throw new Error(`Failed to get schedules: ${response.status} - ${errorText}`)
+  }
+  
+  const result = await response.json()
+  console.log("✅ Schedules found:", result.length)
+  return result
+}
+
+// Actualizar un horario
+export async function updateSchedule(scheduleId: string, data: {
+  date?: string
+  start_time?: string
+  end_time?: string
+  available?: boolean
+}) {
+  console.log("📅 === UPDATING SCHEDULE ===")
+  console.log("📝 Schedule ID:", scheduleId)
+  console.log("📝 Update data:", data)
+  
+  const headers = await getHeaders()
+  const token = localStorage.getItem("access_token")
+  
+  if (!token) {
+    throw new Error("No authentication token found")
+  }
+
+  console.log("🚀 URL:", `${API_BASE_URL}/schedules/${scheduleId}`)
+  
+  const response = await fetch(`${API_BASE_URL}/schedules/${scheduleId}`, {
+    method: "PATCH",
+    headers: headers,
+    body: JSON.stringify(data),
+  })
+  
+  console.log("📊 Response status:", response.status)
+  
+  if (!response.ok) {
+    const errorText = await response.text()
+    console.error("❌ Error updating schedule:", errorText)
+    throw new Error(`Failed to update schedule: ${response.status} - ${errorText}`)
+  }
+  
+  const result = await response.json()
+  console.log("✅ Schedule updated:", result)
+  return result
+}
+
+// Eliminar un horario
+export async function deleteSchedule(scheduleId: string) {
+  console.log("📅 === DELETING SCHEDULE ===")
+  console.log("📝 Schedule ID:", scheduleId)
+  
+  const headers = await getHeaders()
+  const token = localStorage.getItem("access_token")
+  
+  if (!token) {
+    throw new Error("No authentication token found")
+  }
+
+  console.log("🚀 URL:", `${API_BASE_URL}/schedules/${scheduleId}`)
+  
+  const response = await fetch(`${API_BASE_URL}/schedules/${scheduleId}`, {
+    method: "DELETE",
+    headers: headers,
+  })
+  
+  console.log("📊 Response status:", response.status)
+  
+  if (!response.ok) {
+    const errorText = await response.text()
+    console.error("❌ Error deleting schedule:", errorText)
+    throw new Error(`Failed to delete schedule: ${response.status} - ${errorText}`)
+  }
+  
+  console.log("✅ Schedule deleted")
+  return { success: true }
+}

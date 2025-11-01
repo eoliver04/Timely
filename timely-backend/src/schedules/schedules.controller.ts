@@ -5,11 +5,13 @@ import {
   Body,
   UseGuards,
   Get,
+  Patch,
   Query,
+  Delete,
   Headers,
 } from '@nestjs/common';
 import { SchedulesService } from './schedules.service';
-import { ShedulesData } from './dto/schedules.dto';
+import { ShedulesData, UpdateSchedules } from './dto/schedules.dto';
 import { SchedulesOwnerGuard } from './schedules.guard';
 import { SchedulesValidatorGuard } from './validator.guard';
 
@@ -26,7 +28,11 @@ export class SchedulesController {
     @Headers('authorization') authHeader: string,
   ) {
     const token = authHeader.replace('Bearer ', '');
-    return this.schedulesService.createSchedule(scheduleData, businessId,token);
+    return this.schedulesService.createSchedule(
+      scheduleData,
+      businessId,
+      token,
+    );
   }
 
   //obtencion de los horarios
@@ -37,5 +43,28 @@ export class SchedulesController {
     @Query('date') date: string,
   ) {
     return this.schedulesService.getSchedule(businessID, date);
+  }
+
+  // update de los horarios 
+  @UseGuards(SchedulesOwnerGuard)
+  @Patch(':scheduleID')
+  async updateSchedule(
+    @Param('scheduleID') scheduleID: string,
+    @Body() updateData: UpdateSchedules,
+    @Headers('authorization') authHeader: string,
+  ) {
+    
+    return this.schedulesService.updateSchedules(
+      scheduleID,
+      updateData,
+      authHeader,
+    );
+  }
+
+  //eliminar horario
+  @UseGuards(SchedulesOwnerGuard)
+  @Delete(':scheduleID')
+  async deleteSchedule(@Param('scheduleID') scheduleID: string) {
+    return this.schedulesService.deleteSchedules(scheduleID);
   }
 }
