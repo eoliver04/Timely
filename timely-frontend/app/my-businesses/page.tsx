@@ -133,7 +133,7 @@ export default function MyBusinessesPage() {
                         variant="outline" 
                         size="sm" 
                         className="flex-1 gap-2"
-                        onClick={() => router.push(`/my-businesses/${business.id}/schedules/new`)}
+                        onClick={() => router.push(`/my-businesses/${business.id}/schedules`)}
                       >
                         <Calendar className="h-4 w-4" />
                         Horarios
