@@ -45,7 +45,7 @@ export class SchedulesController {
     return this.schedulesService.getSchedule(businessID, date);
   }
 
-  // update de los horarios 
+  // update de los horarios
   @UseGuards(SchedulesOwnerGuard)
   @Patch(':scheduleID')
   async updateSchedule(
@@ -53,7 +53,6 @@ export class SchedulesController {
     @Body() updateData: UpdateSchedules,
     @Headers('authorization') authHeader: string,
   ) {
-    
     return this.schedulesService.updateSchedules(
       scheduleID,
       updateData,
@@ -64,7 +63,10 @@ export class SchedulesController {
   //eliminar horario
   @UseGuards(SchedulesOwnerGuard)
   @Delete(':scheduleID')
-  async deleteSchedule(@Param('scheduleID') scheduleID: string) {
-    return this.schedulesService.deleteSchedules(scheduleID);
+  async deleteSchedule(
+    @Param('scheduleID') scheduleID: string,
+    @Headers('authorization') authHeader: string,
+  ) {
+    return this.schedulesService.deleteSchedules(scheduleID, authHeader);
   }
 }

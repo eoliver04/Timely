@@ -72,9 +72,11 @@ export class SchedulesService {
     return data;
   }
 
-  //elimiinar horario
-  async deleteSchedules(schedule_id) {
-    const { data, error } = await supabase
+  //eliminar horario
+  async deleteSchedules(schedule_id: string, authHeader: string) {
+    const token = authHeader.split(' ')[1];
+    const sb = createSupabaseClientForToken(token);
+    const { data, error } = await sb
       .from('Schedules')
       .delete()
       .eq('id', schedule_id);

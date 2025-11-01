@@ -7,6 +7,8 @@ import { ProtectedRoute } from "@/components/protected-route"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Calendar, Clock, ArrowLeft, Plus, Edit, Trash2, CheckCircle, XCircle } from "lucide-react"
 import {
   Dialog,
@@ -47,12 +49,25 @@ export default function SchedulesPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [scheduleToDelete, setScheduleToDelete] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+  
+  // ✅ Estado para la fecha seleccionada (por defecto: hoy)
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const today = new Date()
+    return today.toISOString().split('T')[0] // Formato: YYYY-MM-DD
+  })
 
   useEffect(() => {
-    fetchData()
+    fetchBusiness()
   }, [businessId])
 
-  const fetchData = async () => {
+  // ✅ Efecto separado para cargar horarios cuando cambia la fecha
+  useEffect(() => {
+    if (business) {
+      fetchSchedules()
+    }
+  }, [selectedDate, business])
+
+  const fetchBusiness = async () => {
     try {
       setLoading(true)
       setError("")
@@ -60,12 +75,24 @@ export default function SchedulesPage() {
       // Obtener información del negocio
       const businessData = await getBusinessById(businessId)
       setBusiness(businessData)
+    } catch (err: any) {
+      setError(err.message || "Error al cargar el negocio")
+      setLoading(false)
+    }
+  }
+
+  const fetchSchedules = async () => {
+    try {
+      setLoading(true)
+      setError("")
       
-      // Obtener horarios
-      const schedulesData = await getSchedules(businessId)
+      console.log("📅 Fetching schedules for date:", selectedDate)
+      
+      // ✅ Obtener horarios filtrados por la fecha seleccionada
+      const schedulesData = await getSchedules(businessId, selectedDate)
       setSchedules(schedulesData || [])
     } catch (err: any) {
-      setError(err.message || "Error al cargar los datos")
+      setError(err.message || "Error al cargar los horarios")
     } finally {
       setLoading(false)
     }
@@ -98,6 +125,10 @@ export default function SchedulesPage() {
     }
   }
 
+  const handleDateChange = (newDate: string) => {
+    setSelectedDate(newDate)
+  }
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString + 'T00:00:00')
     return date.toLocaleDateString('es-ES', {
@@ -106,19 +137,6 @@ export default function SchedulesPage() {
       month: 'long',
       day: 'numeric'
     })
-  }
-
-  const groupSchedulesByDate = (schedules: Schedule[]) => {
-    const grouped: { [key: string]: Schedule[] } = {}
-    
-    schedules.forEach(schedule => {
-      if (!grouped[schedule.date]) {
-        grouped[schedule.date] = []
-      }
-      grouped[schedule.date].push(schedule)
-    })
-    
-    return grouped
   }
 
   if (loading) {
@@ -148,9 +166,6 @@ export default function SchedulesPage() {
     )
   }
 
-  const groupedSchedules = groupSchedulesByDate(schedules)
-  const sortedDates = Object.keys(groupedSchedules).sort()
-
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -166,18 +181,33 @@ export default function SchedulesPage() {
               <ArrowLeft className="h-4 w-4 mr-2" />
               Volver a Mis Negocios
             </Button>
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">Horarios</h1>
                 <p className="text-gray-600 mt-2">Negocio: {business.name}</p>
               </div>
-              <Button 
-                onClick={() => router.push(`/my-businesses/${businessId}/schedules/new`)}
-                className="gap-2"
-              >
-                <Plus className="h-4 w-4" />
-                Nuevo Horario
-              </Button>
+              <div className="flex gap-4 items-center">
+                {/* ✅ Selector de fecha */}
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="date-filter" className="text-sm font-medium">
+                    Fecha:
+                  </Label>
+                  <Input
+                    id="date-filter"
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => handleDateChange(e.target.value)}
+                    className="w-auto"
+                  />
+                </div>
+                <Button 
+                  onClick={() => router.push(`/my-businesses/${businessId}/schedules/new`)}
+                  className="gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Nuevo Horario
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -201,99 +231,98 @@ export default function SchedulesPage() {
               <CardContent>
                 <Calendar className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  No hay horarios registrados
+                  No hay horarios para esta fecha
                 </h3>
-                <p className="text-gray-600 mb-6">
-                  Crea el primer horario para este negocio
+                <p className="text-gray-600 mb-2">
+                  No se encontraron horarios para el {formatDate(selectedDate)}
+                </p>
+                <p className="text-sm text-gray-500 mb-6">
+                  Puedes crear un nuevo horario o seleccionar otra fecha
                 </p>
                 <Button 
                   onClick={() => router.push(`/my-businesses/${businessId}/schedules/new`)}
                   className="gap-2"
                 >
                   <Plus className="h-4 w-4" />
-                  Crear Primer Horario
+                  Crear Horario
                 </Button>
               </CardContent>
             </Card>
           )}
 
-          {/* Schedules by Date */}
+          {/* ✅ Schedules List (sin agrupar, ya está filtrado por fecha) */}
           {schedules.length > 0 && (
-            <div className="space-y-6">
-              {sortedDates.map(date => (
-                <Card key={date}>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Calendar className="h-5 w-5 text-blue-600" />
-                      {formatDate(date)}
-                    </CardTitle>
-                    <CardDescription>
-                      {groupedSchedules[date].length} horario(s) disponible(s)
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {groupedSchedules[date]
-                        .sort((a, b) => a.start_time.localeCompare(b.start_time))
-                        .map(schedule => (
-                          <div
-                            key={schedule.id}
-                            className={`border rounded-lg p-4 ${
-                              schedule.available
-                                ? 'bg-green-50 border-green-200'
-                                : 'bg-gray-50 border-gray-200'
-                            }`}
-                          >
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="flex items-center gap-2">
-                                <Clock className="h-4 w-4 text-gray-600" />
-                                <span className="font-semibold">
-                                  {schedule.start_time} - {schedule.end_time}
-                                </span>
-                              </div>
-                              {schedule.available ? (
-                                <CheckCircle className="h-5 w-5 text-green-600" />
-                              ) : (
-                                <XCircle className="h-5 w-5 text-gray-400" />
-                              )}
-                            </div>
-                            
-                            <div className="mb-3">
-                              <span className={`text-xs px-2 py-1 rounded-full ${
-                                schedule.available
-                                  ? 'bg-green-100 text-green-800'
-                                  : 'bg-gray-200 text-gray-700'
-                              }`}>
-                                {schedule.available ? 'Disponible' : 'No disponible'}
-                              </span>
-                            </div>
-
-                            <div className="flex gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="flex-1 gap-1"
-                                onClick={() => router.push(`/my-businesses/${businessId}/schedules/${schedule.id}/edit`)}
-                              >
-                                <Edit className="h-3 w-3" />
-                                Editar
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                onClick={() => handleDeleteClick(schedule.id)}
-                              >
-                                <Trash2 className="h-3 w-3" />
-                              </Button>
-                            </div>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5 text-blue-600" />
+                  Horarios para el {formatDate(selectedDate)}
+                </CardTitle>
+                <CardDescription>
+                  {schedules.length} horario(s) encontrado(s)
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {schedules
+                    .sort((a, b) => a.start_time.localeCompare(b.start_time))
+                    .map(schedule => (
+                      <div
+                        key={schedule.id}
+                        className={`border rounded-lg p-4 ${
+                          schedule.available
+                            ? 'bg-green-50 border-green-200'
+                            : 'bg-gray-50 border-gray-200'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4 text-gray-600" />
+                            <span className="font-semibold">
+                              {schedule.start_time} - {schedule.end_time}
+                            </span>
                           </div>
-                        ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                          {schedule.available ? (
+                            <CheckCircle className="h-5 w-5 text-green-600" />
+                          ) : (
+                            <XCircle className="h-5 w-5 text-gray-400" />
+                          )}
+                        </div>
+                        
+                        <div className="mb-3">
+                          <span className={`text-xs px-2 py-1 rounded-full ${
+                            schedule.available
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-gray-200 text-gray-700'
+                          }`}>
+                            {schedule.available ? 'Disponible' : 'No disponible'}
+                          </span>
+                        </div>
+
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 gap-1"
+                            onClick={() => router.push(`/my-businesses/${businessId}/schedules/${schedule.id}/edit`)}
+                          >
+                            <Edit className="h-3 w-3" />
+                            Editar
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => handleDeleteClick(schedule.id)}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </CardContent>
+            </Card>
           )}
 
           {/* Delete Confirmation Dialog */}
