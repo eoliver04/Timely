@@ -4,7 +4,7 @@ import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { signOut } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
-import { Building2, Calendar, LayoutDashboard, LogOut } from "lucide-react"
+import { Building2, Calendar, LayoutDashboard, LogOut, Users, UserCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export function Navbar() {
@@ -25,6 +25,8 @@ export function Navbar() {
     { href: "/businesses", label: "Todos los Negocios", icon: Building2 },
     { href: "/my-businesses", label: "Mis Negocios", icon: Building2 },
     { href: "/appointments", label: "Reservas", icon: Calendar },
+    { href: "/users", label: "Usuarios", icon: Users },
+    { href: "/profile", label: "Mi Perfil", icon: UserCircle },
   ]
 
   return (
