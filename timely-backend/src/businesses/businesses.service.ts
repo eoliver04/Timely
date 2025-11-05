@@ -106,12 +106,13 @@ export class BusinessesService {
       .from('Businesses')
       .delete()
       .eq('id',id)
+      .select();
 
       if(error){
         throw new Error(error.message);
       }
 
-      return data;
+      return { message: 'Business deleted successfully', deleted: data };
 
   }
 

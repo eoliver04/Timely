@@ -49,8 +49,12 @@ export default function MyBusinessesPage() {
       setLoading(true)
       setError("")
       const data = await getMyBusinesses()
+      console.log("[FETCH MY BUSINESSES] Data received:", data)
+      console.log("[FETCH MY BUSINESSES] Is array:", Array.isArray(data))
+      console.log("[FETCH MY BUSINESSES] Length:", data?.length)
       setBusinesses(data || [])
     } catch (err: any) {
+      console.error("[FETCH MY BUSINESSES] Error:", err)
       setError(err.message || "Error al cargar mis negocios")
     } finally {
       setLoading(false)
