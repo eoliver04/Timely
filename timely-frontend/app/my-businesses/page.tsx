@@ -2,12 +2,23 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { getMyBusinesses } from "@/services/api"
+import { getMyBusinesses, deleteBusiness } from "@/services/api"
 import { ProtectedRoute } from "@/components/protected-route"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Plus, Building, Phone, MapPin, Edit, Trash2, Calendar } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
 
 interface Business {
   id: string
@@ -21,9 +32,13 @@ interface Business {
 
 export default function MyBusinessesPage() {
   const router = useRouter()
+  const { toast } = useToast()
   const [businesses, setBusinesses] = useState<Business[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [businessToDelete, setBusinessToDelete] = useState<Business | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     fetchMyBusinesses()
@@ -39,6 +54,38 @@ export default function MyBusinessesPage() {
       setError(err.message || "Error al cargar mis negocios")
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleDeleteClick = (business: Business) => {
+    setBusinessToDelete(business)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!businessToDelete) return
+
+    try {
+      setDeleting(true)
+      await deleteBusiness(businessToDelete.id)
+      
+      toast({
+        title: "Negocio eliminado",
+        description: "El negocio se ha eliminado correctamente",
+      })
+      
+      // Recargar la lista de negocios
+      await fetchMyBusinesses()
+      setDeleteDialogOpen(false)
+      setBusinessToDelete(null)
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message || "Error al eliminar el negocio",
+        variant: "destructive",
+      })
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -142,7 +189,7 @@ export default function MyBusinessesPage() {
                         variant="outline" 
                         size="sm" 
                         className="gap-2"
-                        onClick={() => router.push(`/businesses/${business.id}`)}
+                        onClick={() => router.push(`/my-businesses/${business.id}/edit`)}
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -150,6 +197,7 @@ export default function MyBusinessesPage() {
                         variant="outline" 
                         size="sm" 
                         className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => handleDeleteClick(business)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -159,6 +207,29 @@ export default function MyBusinessesPage() {
               ))}
             </div>
           )}
+
+          {/* Alert Dialog for Delete Confirmation */}
+          <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta acción no se puede deshacer. Se eliminará permanentemente el negocio{" "}
+                  <span className="font-semibold">{businessToDelete?.name}</span> y todos sus datos asociados.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDeleteConfirm}
+                  disabled={deleting}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  {deleting ? "Eliminando..." : "Eliminar"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
 
           {/* Navigation Links */}
           <div className="mt-8 text-center">
