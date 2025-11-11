@@ -87,11 +87,19 @@ export default function BusinessDetailPage() {
   }
 
   const handleReserve = async (scheduleId: string) => {
-    if (creatingAppointment) return
+    console.log('[HANDLE RESERVE] Iniciado con scheduleId:', scheduleId)
+    console.log('[HANDLE RESERVE] creatingAppointment:', creatingAppointment)
+    
+    if (creatingAppointment) {
+      console.log('[HANDLE RESERVE] Ya hay una reserva en proceso, ignorando')
+      return
+    }
 
     try {
       setCreatingAppointment(true)
-      await createAppointment(scheduleId)
+      console.log('[HANDLE RESERVE] Llamando a createAppointment...')
+      const result = await createAppointment(scheduleId)
+      console.log('[HANDLE RESERVE] Resultado:', result)
       
       toast({
         title: "Reserva exitosa",
@@ -99,9 +107,11 @@ export default function BusinessDetailPage() {
       })
 
       // Recargar horarios para ver el cambio
+      console.log('[HANDLE RESERVE] Recargando horarios...')
       await loadSchedules()
+      console.log('[HANDLE RESERVE] Horarios recargados')
     } catch (error: any) {
-      console.error("Error creating appointment:", error)
+      console.error('[HANDLE RESERVE] Error:', error)
       toast({
         title: "Error",
         description: error.message || "No se pudo crear la reserva",
@@ -109,6 +119,7 @@ export default function BusinessDetailPage() {
       })
     } finally {
       setCreatingAppointment(false)
+      console.log('[HANDLE RESERVE] Finalizado')
     }
   }
 
@@ -304,7 +315,10 @@ export default function BusinessDetailPage() {
                                     className="w-full mt-3"
                                     size="sm"
                                     disabled={creatingAppointment}
-                                    onClick={() => handleReserve(schedule.id)}
+                                    onClick={() => {
+                                      console.log('[BUTTON CLICK] Schedule ID:', schedule.id)
+                                      handleReserve(schedule.id)
+                                    }}
                                   >
                                     {creatingAppointment ? "Reservando..." : "Reservar"}
                                   </Button>
