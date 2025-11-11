@@ -21,8 +21,13 @@ export class UsersController {
   @Patch('me')
   async updateMe(@Req() req, @Body() updateUserDto: UpdateUserDto) {
     console.log('[PATCH /users/me] Iniciado');
-    console.log('User ID from req.user:', req.user?.id);
-    console.log('Update data:', updateUserDto);
+    console.log('[PATCH /users/me] User ID from req.user:', req.user?.id);
+    console.log('[PATCH /users/me] Update data received:', JSON.stringify(updateUserDto));
+    console.log('[PATCH /users/me] Update data keys:', Object.keys(updateUserDto));
+    console.log('[PATCH /users/me] Name value:', updateUserDto.name);
+    console.log('[PATCH /users/me] Phone value:', updateUserDto.phone);
+    console.log('[PATCH /users/me] Role value:', updateUserDto.role);
+    
     return this.usersService.updatePorfile(req.user.id, updateUserDto);
   }
 

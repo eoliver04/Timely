@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { supabase } from 'src/config/supabase.cliente';
 import { UpdateUserDto } from './dto/update-user.dto';
 
@@ -43,23 +43,29 @@ export class UsersService {
 
   async updatePorfile(userId: string, updateUser: UpdateUserDto) {
     console.log('[UPDATE PROFILE] userId:', userId);
-    console.log('[UPDATE PROFILE] updateUser:', updateUser);
+    console.log('[UPDATE PROFILE] updateUser:', JSON.stringify(updateUser));
+    console.log('[UPDATE PROFILE] updateUser.name:', updateUser.name);
     
     // Mapear 'name' a 'user_name' para coincidir con la tabla
-    const updateData: any = {};
-    if (updateUser.name) {
+    const updateData: any = { id: userId };
+    
+    if (updateUser.name !== undefined) {
       updateData.user_name = updateUser.name;
+      console.log('[UPDATE PROFILE] Mapeando name a user_name:', updateUser.name);
     }
-    if (updateUser.phone) {
+    if (updateUser.phone !== undefined) {
       updateData.phone = updateUser.phone;
     }
+    if (updateUser.role !== undefined) {
+      updateData.role = updateUser.role;
+    }
     
-    console.log('[UPDATE PROFILE] Mapped data:', updateData);
+    console.log('[UPDATE PROFILE] Final mapped data:', JSON.stringify(updateData));
     
+    // Usar UPSERT para crear si no existe, actualizar si existe
     const { data, error } = await supabase
       .from('user_status')
-      .update(updateData)
-      .eq('id', userId)
+      .upsert(updateData, { onConflict: 'id' })
       .select()
       .single();
       
@@ -69,7 +75,16 @@ export class UsersService {
     }
     
     console.log('[UPDATE PROFILE] Success:', data);
-    return data;
+    
+    // Mapear de vuelta para el frontend
+    return {
+      id: data.id,
+      name: data.user_name,
+      phone: data.phone,
+      role: data.role,
+      created_at: data.created_at,
+      updated_at: data.updated_at,
+    };
   }
   
 
