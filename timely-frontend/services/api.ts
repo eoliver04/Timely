@@ -333,36 +333,25 @@ export async function deleteBusiness(businessId: string) {
 }
 
 // Appointments API calls
-export async function getAppointments() {
-  const response = await fetch(`${API_BASE_URL}/appointments`, {
-    headers: await getHeaders(),
-  })
-  if (!response.ok) throw new Error("Failed to fetch appointments")
-  return response.json()
-}
-
-export async function createAppointment(data: {
-  businessId: string
-  date: string
-  time: string
-  service: string
-}) {
-  const response = await fetch(`${API_BASE_URL}/appointments`, {
+export async function createAppointment(scheduleId: string) {
+  console.log('[CREATE APPOINTMENT] Schedule ID:', scheduleId)
+  
+  const response = await fetch(`${API_BASE_URL}/appointments/schedule/${scheduleId}`, {
     method: "POST",
     headers: await getHeaders(),
-    body: JSON.stringify(data),
   })
-  if (!response.ok) throw new Error("Failed to create appointment")
-  return response.json()
-}
-
-export async function deleteAppointment(id: string) {
-  const response = await fetch(`${API_BASE_URL}/appointments/${id}`, {
-    method: "DELETE",
-    headers: await getHeaders(),
-  })
-  if (!response.ok) throw new Error("Failed to delete appointment")
-  return response.json()
+  
+  console.log('[CREATE APPOINTMENT] Response status:', response.status)
+  
+  if (!response.ok) {
+    const error = await response.json()
+    console.error('[CREATE APPOINTMENT] Error:', error)
+    throw new Error(error.message || "Failed to create appointment")
+  }
+  
+  const data = await response.json()
+  console.log('[CREATE APPOINTMENT] Success:', data)
+  return data
 }
 
 // User Profile API calls
