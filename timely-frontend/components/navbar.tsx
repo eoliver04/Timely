@@ -4,7 +4,7 @@ import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { signOut } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
-import { Building2, Calendar, LayoutDashboard, LogOut, Users, UserCircle } from "lucide-react"
+import { Building2, Calendar, LayoutDashboard, LogOut, UserCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export function Navbar() {
@@ -22,11 +22,10 @@ export function Navbar() {
 
   const navItems = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/businesses", label: "Todos los Negocios", icon: Building2 },
+    { href: "/businesses", label: "Negocios", icon: Building2 },
     { href: "/my-businesses", label: "Mis Negocios", icon: Building2 },
     { href: "/appointments", label: "Reservas", icon: Calendar },
-    { href: "/users", label: "Usuarios", icon: Users },
-    { href: "/profile", label: "Mi Perfil", icon: UserCircle },
+    { href: "/profile", label: "Perfil", icon: UserCircle },
   ]
 
   return (
@@ -72,21 +71,22 @@ export function Navbar() {
         </div>
 
         {/* Mobile Navigation */}
-        <div className="md:hidden flex items-center gap-1 pb-3">
+        <div className="md:hidden flex overflow-x-auto gap-1 pb-3 -mx-2 px-2">
           {navItems.map((item) => {
             const Icon = item.icon
             const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
 
             return (
-              <Link key={item.href} href={item.href} className="flex-1">
+              <Link key={item.href} href={item.href} className="flex-shrink-0">
                 <Button
                   variant="ghost"
+                  size="sm"
                   className={cn(
-                    "w-full gap-2 text-xs",
+                    "gap-1.5 text-xs whitespace-nowrap",
                     isActive && "bg-blue-50 text-primary hover:bg-blue-100 hover:text-primary",
                   )}
                 >
-                  <Icon className="h-4 w-4" />
+                  <Icon className="h-3.5 w-3.5" />
                   {item.label}
                 </Button>
               </Link>

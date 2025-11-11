@@ -1,4 +1,4 @@
-import {  IsOptional, IsString } from "class-validator";
+import {  IsOptional, IsString, IsIn } from "class-validator";
 
 
 export class UpdateUserDto{
@@ -11,6 +11,9 @@ export class UpdateUserDto{
     @IsString()
     phone?:string;
 
-    
+    @IsOptional()
+    @IsString()
+    @IsIn(['admin', 'cliente'])
+    role?:string;
 
 }
