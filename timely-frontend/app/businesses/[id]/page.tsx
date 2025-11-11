@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
-import { getBusinessById, getSchedules } from "@/services/api"
+import { getBusinessById, getSchedules, createAppointment } from "@/services/api"
 import { ProtectedRoute } from "@/components/protected-route"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+import { useToast } from "@/hooks/use-toast"
 import { ArrowLeft, Building2, MapPin, Phone, Calendar, Clock, Info, CheckCircle, XCircle } from "lucide-react"
 
 interface Business {
@@ -36,10 +37,12 @@ interface Schedule {
 export default function BusinessDetailPage() {
   const router = useRouter()
   const params = useParams()
+  const { toast } = useToast()
   const [business, setBusiness] = useState<Business | null>(null)
   const [schedules, setSchedules] = useState<Schedule[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingSchedules, setLoadingSchedules] = useState(false)
+  const [creatingAppointment, setCreatingAppointment] = useState(false)
   const [error, setError] = useState("")
   const [selectedDate, setSelectedDate] = useState(() => {
     const today = new Date()
@@ -80,6 +83,32 @@ export default function BusinessDetailPage() {
       setSchedules([])
     } finally {
       setLoadingSchedules(false)
+    }
+  }
+
+  const handleReserve = async (scheduleId: string) => {
+    if (creatingAppointment) return
+
+    try {
+      setCreatingAppointment(true)
+      await createAppointment(scheduleId)
+      
+      toast({
+        title: "Reserva exitosa",
+        description: "Tu cita ha sido agendada correctamente",
+      })
+
+      // Recargar horarios para ver el cambio
+      await loadSchedules()
+    } catch (error: any) {
+      console.error("Error creating appointment:", error)
+      toast({
+        title: "Error",
+        description: error.message || "No se pudo crear la reserva",
+        variant: "destructive",
+      })
+    } finally {
+      setCreatingAppointment(false)
     }
   }
 
@@ -274,12 +303,10 @@ export default function BusinessDetailPage() {
                                   <Button
                                     className="w-full mt-3"
                                     size="sm"
-                                    onClick={() => {
-                                      // TODO: Implementar reserva
-                                      alert(`Reservar: ${schedule.date} a las ${schedule.start_time}`)
-                                    }}
+                                    disabled={creatingAppointment}
+                                    onClick={() => handleReserve(schedule.id)}
                                   >
-                                    Reservar
+                                    {creatingAppointment ? "Reservando..." : "Reservar"}
                                   </Button>
                                 )}
                               </CardContent>
