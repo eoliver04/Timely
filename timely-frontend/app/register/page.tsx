@@ -5,6 +5,7 @@ import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { signUp, signIn } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -85,10 +86,22 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-3xl font-bold text-center">Timely</CardTitle>
-          <CardDescription className="text-center">Crea tu cuenta para comenzar</CardDescription>
+      <Card className="w-full max-w-md shadow-xl">
+        <CardHeader className="space-y-4 text-center">
+          {/* Logo centrado */}
+          <div className="flex justify-center">
+            <div className="relative w-20 h-20">
+              <Image
+                src="/logo_timely.png"
+                alt="Timely Logo"
+                fill
+                className="object-contain"
+                priority
+              />
+            </div>
+          </div>
+          <CardTitle className="text-3xl font-bold">Timely</CardTitle>
+          <CardDescription>Crea tu cuenta para comenzar</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">

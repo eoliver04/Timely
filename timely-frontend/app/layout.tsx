@@ -17,7 +17,12 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Timely - Gestión de Negocios y Reservas",
   description: "Plataforma completa para administrar negocios y reservas",
-  generator: "Next.js"
+  generator: "Next.js",
+  icons: {
+    icon: '/logo_timely.png',
+    shortcut: '/logo_timely.png',
+    apple: '/logo_timely.png',
+  },
 }
 
 export default function RootLayout({

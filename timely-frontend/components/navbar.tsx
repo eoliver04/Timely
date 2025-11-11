@@ -2,6 +2,7 @@
 
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { signOut } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { Building2, Calendar, LayoutDashboard, LogOut, UserCircle } from "lucide-react"
@@ -33,8 +34,17 @@ export function Navbar() {
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-8">
-            <Link href="/dashboard" className="text-2xl font-bold text-primary">
-              Timely
+            <Link href="/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity group">
+              <div className="relative w-9 h-9 flex-shrink-0">
+                <Image
+                  src="/logo_timely.png"
+                  alt="Timely"
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </div>
+              <span className="text-2xl font-bold text-primary hidden sm:inline-block">Timely</span>
             </Link>
 
             <div className="hidden md:flex items-center gap-1">

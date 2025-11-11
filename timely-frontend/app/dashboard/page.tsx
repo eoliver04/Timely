@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import { getCurrentUserProfile } from "@/services/api"
 import { ProtectedRoute } from "@/components/protected-route"
 import { isAdmin, getUserRole } from "@/lib/auth-utils"
@@ -36,16 +37,30 @@ export default function DashboardPage() {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="container mx-auto p-6 max-w-6xl">
-          {/* Welcome Section */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Bienvenido a Timely</h1>
-            <p className="text-lg text-gray-600">
-              {userEmail && <span className="font-medium">{userEmail}</span>}
-              {userRole && <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
-                {userRole === 'admin' ? '👑 Administrador' : '👤 Cliente'}
-              </span>}
-            </p>
+        <div className="container mx-auto p-4 sm:p-6 max-w-6xl">
+          
+          {/* Header con Logo */}
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">Bienvenido a Timely</h1>
+              <p className="text-base sm:text-lg text-gray-600">
+                {userEmail && <span className="font-medium">{userEmail}</span>}
+                {userRole && <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs sm:text-sm rounded-full">
+                  {userRole === 'admin' ? '👑 Administrador' : '👤 Cliente'}
+                </span>}
+              </p>
+            </div>
+            
+            {/* Logo en la esquina superior derecha - diseño minimalista */}
+            <div className="relative w-16 h-16 sm:w-20 sm:h-20 opacity-80 hover:opacity-100 transition-opacity">
+              <Image
+                src="/logo_timely.png"
+                alt="Timely Logo"
+                fill
+                className="object-contain"
+                priority
+              />
+            </div>
           </div>
 
           {/* Quick Actions */}
