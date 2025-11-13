@@ -1,4 +1,4 @@
-import { Controller, Param, Post , Headers, Req, UseGuards, Get} from '@nestjs/common';
+import { Controller, Param, Post , Headers, Req, UseGuards, Get, Header, Query} from '@nestjs/common';
 import { AppointmetsService } from './appointmets.service';
 import { AppointmentsGuard } from './appointmets.guard';
 
@@ -18,7 +18,7 @@ export class AppointmetsController {
   }
 
 
-  //obtener appointments por id
+  //obtener appointments por usuario
   @UseGuards(AppointmentsGuard)
   @Get('me')
   async getAppointmentsByUser(
@@ -26,5 +26,16 @@ export class AppointmetsController {
     @Req() req: any
   ){
     return this.appointmetsService.getAppointmentsByUser(req.user.id, authHeader);
+  }
+
+  //obtener appointments por negocio
+  @UseGuards(AppointmentsGuard)
+  @Get('business/:businessId')
+  async getAppointmentsByBusiness(
+    @Param('businessId') businessId:string,
+    @Headers('authorization') authHeader: string,
+    @Query('date') date?:string,
+  ){
+    return this.appointmetsService.getAppointmentsByBusiness(businessId, authHeader, date);
   }
 }

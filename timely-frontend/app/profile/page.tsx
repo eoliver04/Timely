@@ -36,22 +36,34 @@ export default function ProfilePage() {
   async function loadProfile() {
     try {
       const profile = await getCurrentUserProfile()
-      console.log("Profile data:", profile)
+      console.log("[PROFILE PAGE] Full profile data:", profile)
       
       // El endpoint /users/me retorna datos de auth.getUser()
-      // La estructura es: { user: { id, email, ... } }
+      // La estructura es: { user: { id, email, name, phone, role, ... } }
       const userData = profile.user || profile
+      
+      console.log("[PROFILE PAGE] User data extracted:", userData)
+      console.log("[PROFILE PAGE] Name from userData:", userData.name)
+      console.log("[PROFILE PAGE] Phone from userData:", userData.phone)
+      console.log("[PROFILE PAGE] Role from userData:", userData.role)
       
       setUserInfo({
         email: userData.email || "",
         created_at: userData.created_at || "",
       })
       
-      // Para el name, phone y role necesitamos obtenerlos de user_metadata o user_status
+      // El backend ya combina user_status con user_metadata
+      // Prioridad: userData directo > user_metadata
       setFormData({
-        name: userData.user_metadata?.name || userData.name || "",
-        phone: userData.user_metadata?.phone || userData.phone || "",
-        role: userData.user_metadata?.role || userData.role || "cliente",
+        name: userData.name || userData.user_metadata?.name || "",
+        phone: userData.phone || userData.user_metadata?.phone || "",
+        role: userData.role || userData.user_metadata?.role || "cliente",
+      })
+      
+      console.log("[PROFILE PAGE] Form data set:", {
+        name: userData.name || userData.user_metadata?.name || "",
+        phone: userData.phone || userData.user_metadata?.phone || "",
+        role: userData.role || userData.user_metadata?.role || "cliente",
       })
     } catch (error) {
       console.error("Error loading profile:", error)

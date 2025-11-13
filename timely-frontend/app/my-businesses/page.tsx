@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { getMyBusinesses, deleteBusiness } from "@/services/api"
-import { ProtectedRoute } from "@/components/protected-route"
+import { AdminRoute } from "@/components/admin-route"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -94,7 +94,7 @@ export default function MyBusinessesPage() {
   }
 
   return (
-    <ProtectedRoute>
+    <AdminRoute>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="container mx-auto p-6">
           
@@ -248,6 +248,6 @@ export default function MyBusinessesPage() {
 
         </div>
       </div>
-    </ProtectedRoute>
+    </AdminRoute>
   )
 }

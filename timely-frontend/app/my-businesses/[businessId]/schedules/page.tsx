@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Calendar, Clock, ArrowLeft, Plus, Edit, Trash2, CheckCircle, XCircle } from "lucide-react"
+import { Calendar, Clock, ArrowLeft, Plus, Edit, Trash2, CheckCircle, XCircle, Users } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -200,6 +200,14 @@ export default function SchedulesPage() {
                     className="w-auto"
                   />
                 </div>
+                <Button 
+                  onClick={() => router.push(`/my-businesses/${businessId}/appointments`)}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <Users className="h-4 w-4" />
+                  Ver Reservas
+                </Button>
                 <Button 
                   onClick={() => router.push(`/my-businesses/${businessId}/schedules/new`)}
                   className="gap-2"
