@@ -20,22 +20,27 @@ export class UsersService {
       .eq('id', data.user.id)
       .single();
     
-    if (statusError) {
+    if (statusError && statusError.code !== 'PGRST116') {
+      // PGRST116 = no rows found, es aceptable si el usuario no ha actualizado su perfil
       console.error('[GET PROFILE] user_status error:', statusError);
     }
+
+    console.log('[GET PROFILE] Auth user:', data.user);
+    console.log('[GET PROFILE] User status data:', userStatus);
 
     // Combinar datos de auth con user_status
     const combined = {
       ...data,
       user: {
         ...data.user,
-        name: userStatus?.user_name || '',
-        phone: userStatus?.phone || '',
-        role: userStatus?.role || 'cliente',
+        // Priorizar datos de user_status sobre user_metadata
+        name: userStatus?.user_name || data.user.user_metadata?.name || '',
+        phone: userStatus?.phone || data.user.user_metadata?.phone || '',
+        role: userStatus?.role || data.user.user_metadata?.role || 'cliente',
       }
     };
 
-    console.log('[GET PROFILE] Success:', combined);
+    console.log('[GET PROFILE] Combined result:', combined);
     return combined;
   }
 

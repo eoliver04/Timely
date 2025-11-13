@@ -388,6 +388,32 @@ export async function getMyAppointments() {
   return { appointments: [] }
 }
 
+export async function getBusinessAppointments(businessId: string, date?: string) {
+  console.log('[GET BUSINESS APPOINTMENTS] Business ID:', businessId)
+  console.log('[GET BUSINESS APPOINTMENTS] Date filter:', date)
+  
+  let url = `${API_BASE_URL}/appointments/business/${businessId}`
+  if (date) {
+    url += `?date=${date}`
+  }
+  
+  const response = await fetch(url, {
+    headers: await getHeaders(),
+  })
+  
+  console.log('[GET BUSINESS APPOINTMENTS] Response status:', response.status)
+  
+  if (!response.ok) {
+    const error = await response.json()
+    console.error('[GET BUSINESS APPOINTMENTS] Error:', error)
+    throw new Error(error.message || "Failed to get business appointments")
+  }
+  
+  const data = await response.json()
+  console.log('[GET BUSINESS APPOINTMENTS] Success:', data)
+  return data
+}
+
 // User Profile API calls
 export async function getCurrentUserProfile() {
   const response = await fetch(`${API_BASE_URL}/users/me`, {
@@ -433,13 +459,25 @@ export async function updateUserProfile(data: {
   phone?: string
   role?: "admin" | "cliente"
 }) {
+  console.log('[UPDATE USER PROFILE] Data to send:', data)
+  
   const response = await fetch(`${API_BASE_URL}/users/me`, {
     method: "PATCH",
     headers: await getHeaders(),
     body: JSON.stringify(data),
   })
-  if (!response.ok) throw new Error("Failed to update user profile")
-  return response.json()
+  
+  console.log('[UPDATE USER PROFILE] Response status:', response.status)
+  
+  if (!response.ok) {
+    const errorText = await response.text()
+    console.error('[UPDATE USER PROFILE] Error:', errorText)
+    throw new Error("Failed to update user profile")
+  }
+  
+  const result = await response.json()
+  console.log('[UPDATE USER PROFILE] Success:', result)
+  return result
 }
 
 // Schedules API calls

@@ -57,6 +57,7 @@ export class AppointmentsGuard implements CanActivate {
         // SIEMPRE asignar el usuario después de verificar/decodificar
         request.user = {
             id: payload.sub || payload.user_id || payload?.user_metadata?.sub,
+            role: payload.user_metadata?.role || payload.role
             
         };
 

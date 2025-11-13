@@ -1,16 +1,25 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import { signOut } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
-import { Building2, Calendar, LayoutDashboard, LogOut, UserCircle } from "lucide-react"
+import { Building2, Calendar, LayoutDashboard, LogOut, UserCircle, Store } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { getUserRole } from "@/lib/auth-utils"
 
 export function Navbar() {
   const router = useRouter()
   const pathname = usePathname()
+  const [userRole, setUserRole] = useState<string | null>(null)
+
+  useEffect(() => {
+    // Obtener el rol del usuario al montar el componente
+    const role = getUserRole()
+    setUserRole(role)
+  }, [])
 
   const handleLogout = async () => {
     try {
@@ -21,13 +30,23 @@ export function Navbar() {
     }
   }
 
-  const navItems = [
+  // Navegación para ADMINS
+  const adminNavItems = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/businesses", label: "Negocios", icon: Building2 },
-    { href: "/my-businesses", label: "Mis Negocios", icon: Building2 },
-    { href: "/appointments", label: "Reservas", icon: Calendar },
+    { href: "/my-businesses", label: "Mis Negocios", icon: Store },
     { href: "/profile", label: "Perfil", icon: UserCircle },
   ]
+
+  // Navegación para CLIENTES
+  const clientNavItems = [
+    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/businesses", label: "Negocios", icon: Building2 },
+    { href: "/appointments", label: "Mis Reservas", icon: Calendar },
+    { href: "/profile", label: "Perfil", icon: UserCircle },
+  ]
+
+  // Seleccionar items según el rol
+  const navItems = userRole === 'admin' ? adminNavItems : clientNavItems
 
   return (
     <nav className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">

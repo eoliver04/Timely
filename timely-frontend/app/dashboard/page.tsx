@@ -65,8 +65,9 @@ export default function DashboardPage() {
 
           {/* Quick Actions */}
           <div className="grid md:grid-cols-2 gap-6 mb-8">
-            {/* Solo mostrar "Crear Negocio" si es admin */}
+            {/* Para ADMINS: Gestión de negocios */}
             {isAdmin() && (
+              <>
                 <Card
                   className="hover:shadow-lg transition-shadow cursor-pointer"
                   onClick={() => router.push("/businesses/new")}
@@ -75,63 +76,93 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-3">
                       <div className="p-3 bg-blue-100 rounded-lg">
                         <Plus className="h-6 w-6 text-blue-600" />
+                      </div>
+                      <div>
+                        <CardTitle>Crear Negocio</CardTitle>
+                        <CardDescription>Registra un nuevo negocio</CardDescription>
+                      </div>
                     </div>
-                    <div>
-                      <CardTitle>Crear Negocio</CardTitle>
-                      <CardDescription>Registra un nuevo negocio</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button className="w-full bg-transparent" variant="outline">
+                      Comenzar
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card
+                  className="hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={() => router.push("/my-businesses")}
+                >
+                  <CardHeader>
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 bg-indigo-100 rounded-lg">
+                        <Building2 className="h-6 w-6 text-indigo-600" />
+                      </div>
+                      <div>
+                        <CardTitle>Mis Negocios</CardTitle>
+                        <CardDescription>Gestionar mis negocios</CardDescription>
+                      </div>
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full bg-transparent" variant="outline">
-                    Comenzar
-                  </Button>
-                </CardContent>
-              </Card>
+                  </CardHeader>
+                  <CardContent>
+                    <Button className="w-full bg-transparent" variant="outline">
+                      Ver Negocios
+                    </Button>
+                  </CardContent>
+                </Card>
+              </>
             )}
 
-            <Card
-              className="hover:shadow-lg transition-shadow cursor-pointer"
-              onClick={() => router.push("/businesses")}
-            >
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-indigo-100 rounded-lg">
-                    <Building2 className="h-6 w-6 text-indigo-600" />
-                  </div>
-                  <div>
-                    <CardTitle>Mis Negocios</CardTitle>
-                    <CardDescription>Ver y gestionar negocios</CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Button className="w-full bg-transparent" variant="outline">
-                  Ver Negocios
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+            {/* Para CLIENTES: Explorar y reservar */}
+            {!isAdmin() && (
+              <>
+                <Card
+                  className="hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={() => router.push("/businesses")}
+                >
+                  <CardHeader>
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 bg-indigo-100 rounded-lg">
+                        <Building2 className="h-6 w-6 text-indigo-600" />
+                      </div>
+                      <div>
+                        <CardTitle>Explorar Negocios</CardTitle>
+                        <CardDescription>Descubre y reserva servicios</CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <Button className="w-full bg-transparent" variant="outline">
+                      Ver Negocios
+                    </Button>
+                  </CardContent>
+                </Card>
 
-          {/* Additional Info */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <div className="p-3 bg-green-100 rounded-lg">
-                  <Calendar className="h-6 w-6 text-green-600" />
-                </div>
-                <div>
-                  <CardTitle>Gestión de Reservas</CardTitle>
-                  <CardDescription>Administra las citas de tus clientes</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <Button className="w-full bg-transparent" variant="outline" onClick={() => router.push("/appointments")}>
-                Ver Reservas
-              </Button>
-            </CardContent>
-          </Card>
+                <Card
+                  className="hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={() => router.push("/appointments")}
+                >
+                  <CardHeader>
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 bg-green-100 rounded-lg">
+                        <Calendar className="h-6 w-6 text-green-600" />
+                      </div>
+                      <div>
+                        <CardTitle>Mis Reservas</CardTitle>
+                        <CardDescription>Ver y gestionar tus citas</CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <Button className="w-full bg-transparent" variant="outline">
+                      Ver Reservas
+                    </Button>
+                  </CardContent>
+                </Card>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </ProtectedRoute>

@@ -93,7 +93,8 @@ export class AppointmetsService {
 
     const { data, error } = await sb
       .from('Appointments')
-      .select(`
+      .select(
+        `
       *,
       schedule:Schedules (
         *,
@@ -104,7 +105,8 @@ export class AppointmetsService {
           phone
         )
       )
-    `)
+    `,
+      )
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
@@ -114,5 +116,62 @@ export class AppointmetsService {
     }
 
     return data;
+  }
+
+  //obtener los appointments de cada negocio por dia
+  async getAppointmentsByBusiness(
+    businessId: string,
+    authHeader: string,
+    date?: string,
+  ) {
+    console.log('[GET APPOINTMENTS BY BUSINESS] Business ID:', businessId);
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new BadRequestException('Invalid authorization header');
+    }
+    const token = authHeader.split(' ')[1];
+    const sb = createSupabaseClientForToken(token);
+
+    let query = sb
+      .from('Appointments')
+      .select(
+        `
+      *,
+      schedule:Schedules!inner (
+        *,
+        business:Businesses (
+        id,
+        name,
+        phone
+        )
+      ),
+      user:user_status (
+        id,
+        user_name,
+        phone
+      )
+    `
+      )
+      .eq('schedule.business.id', businessId)
+
+      .order('schedule.date', { ascending: true })
+      .order('schedule.start_time', { ascending: true });
+
+    if (date) {
+      query = query.eq('schedule.date', date);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('[GET APPOINTMENTS BY BUSINESS] Error:', error);
+      throw new BadRequestException(error.message);
+    }
+
+    return {
+      appointments: data || [],
+      total: data?.length || 0,
+      date: date || 'all',
+      businessId: businessId,
+    };
   }
 }
