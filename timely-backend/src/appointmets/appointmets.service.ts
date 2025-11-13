@@ -1,75 +1,118 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { createSupabaseClientForToken, supabase } from 'src/config/supabase.cliente';
+import {
+  createSupabaseClientForToken,
+  supabase,
+} from 'src/config/supabase.cliente';
 
 @Injectable()
 export class AppointmetsService {
-    //crear appointment
+  //crear appointment
 
-    async createAppointment(scheduleid: string, authHeader: string, clientID: string) {
-        console.log('[CREATE APPOINTMENT] Schedule ID:', scheduleid);
-        console.log('[CREATE APPOINTMENT] Client ID:', clientID);
+  async createAppointment(
+    scheduleid: string,
+    authHeader: string,
+    clientID: string,
+  ) {
+    console.log('[CREATE APPOINTMENT] Schedule ID:', scheduleid);
+    console.log('[CREATE APPOINTMENT] Client ID:', clientID);
 
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            throw new BadRequestException('Invalid authorization header');
-        }
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new BadRequestException('Invalid authorization header');
+    }
 
-        const token = authHeader.split(' ')[1];
-        const sb = createSupabaseClientForToken(token);
+    const token = authHeader.split(' ')[1];
+    const sb = createSupabaseClientForToken(token);
 
-        // 1. Verificar que el horario existe y está disponible
-        const { data: schedule, error: scheduleError } = await sb
-            .from('Schedules')
-            .select('*')
-            .eq('id', scheduleid)
-            .single();
+    // Verificar que el horario existe y está disponible
+    const { data: schedule, error: scheduleError } = await sb
+      .from('Schedules')
+      .select('*')
+      .eq('id', scheduleid)
+      .single();
 
-        if (scheduleError || !schedule) {
-            console.error('[CREATE APPOINTMENT] Schedule not found:', scheduleError);
-            throw new BadRequestException('Schedule not found');
-        }
+    if (scheduleError || !schedule) {
+      console.error('[CREATE APPOINTMENT] Schedule not found:', scheduleError);
+      throw new BadRequestException('Schedule not found');
+    }
 
-        if (!schedule.available) {
-            console.error('[CREATE APPOINTMENT] Schedule not available');
-            throw new BadRequestException('Schedule is not available');
-        }
+    if (!schedule.available) {
+      console.error('[CREATE APPOINTMENT] Schedule not available');
+      throw new BadRequestException('Schedule is not available');
+    }
 
-        // 2. Crear el appointment
-        const { data, error } = await sb
-            .from('Appointments')
-            .insert({
-                schedule_id: scheduleid,
-                user_id: clientID,
-                status: true
+    //  Crear el appointment
+    const { data, error } = await sb
+      .from('Appointments')
+      .insert({
+        schedule_id: scheduleid,
+        user_id: clientID,
+        status: true,
+      })
+      .select()
+      .single();
 
-            })
-            .select()
-            .single();
+    if (error) {
+      console.error('[CREATE APPOINTMENT] Error:', error);
+      throw new BadRequestException(error.message);
+    }
 
-        if (error) {
-            console.error('[CREATE APPOINTMENT] Error:', error);
-            throw new BadRequestException(error.message);
-        }
+    //  Marcar el horario como no disponible
+    const { error: updateError } = await sb
+      .from('Schedules')
+      .update({ available: false })
+      .eq('id', scheduleid);
 
-        // 3. Marcar el horario como no disponible
-        const { error: updateError } = await sb
-            .from('Schedules')
-            .update({ available: false })
-            .eq('id', scheduleid);
+    if (updateError) {
+      console.error(
+        '[CREATE APPOINTMENT] Error updating schedule:',
+        updateError,
+      );
+      // Rollback: eliminar el appointment creado
+      await sb.from('Appointments').delete().eq('id', data.id);
+      throw new BadRequestException('Failed to update schedule availability');
+    }
 
-        if (updateError) {
-            console.error('[CREATE APPOINTMENT] Error updating schedule:', updateError);
-            // Rollback: eliminar el appointment creado
-            await sb.from('Appointments').delete().eq('id', data.id);
-            throw new BadRequestException('Failed to update schedule availability');
-        }
+    console.log('[CREATE APPOINTMENT] Success:', data);
 
-        console.log('[CREATE APPOINTMENT] Success:', data);
+    return {
+      message: 'Appointment created successfully',
+      appointment: data,
+    };
+  }
 
-        return {
-            message: 'Appointment created successfully',
-            appointment: data
-        };
-    } 
+  //obtener los appointments de un usuario por id
+  async getAppointmentsByUser(userId: string, authHeader: string) {
+    console.log('[GET APPOINTMENTS] User ID:');
 
-    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new BadRequestException('Invalid authorization header');
+    }
+
+    const token = authHeader.split(' ')[1];
+    const sb = createSupabaseClientForToken(token);
+
+    const { data, error } = await sb
+      .from('Appointments')
+      .select(`
+      *,
+      schedule:Schedules (
+        *,
+        business:Businesses (
+          id,
+          name,
+          address,
+          phone
+        )
+      )
+    `)
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('[GET APPOINTMENTS] Error:', error);
+      throw new BadRequestException(error.message);
+    }
+
+    return data;
+  }
 }
