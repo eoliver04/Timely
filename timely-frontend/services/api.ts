@@ -354,6 +354,26 @@ export async function createAppointment(scheduleId: string) {
   return data
 }
 
+export async function getMyAppointments() {
+  console.log('[GET MY APPOINTMENTS] Iniciado')
+  
+  const response = await fetch(`${API_BASE_URL}/appointments/me`, {
+    headers: await getHeaders(),
+  })
+  
+  console.log('[GET MY APPOINTMENTS] Response status:', response.status)
+  
+  if (!response.ok) {
+    const error = await response.json()
+    console.error('[GET MY APPOINTMENTS] Error:', error)
+    throw new Error(error.message || "Failed to get appointments")
+  }
+  
+  const data = await response.json()
+  console.log('[GET MY APPOINTMENTS] Success:', data)
+  return data
+}
+
 // User Profile API calls
 export async function getCurrentUserProfile() {
   const response = await fetch(`${API_BASE_URL}/users/me`, {
