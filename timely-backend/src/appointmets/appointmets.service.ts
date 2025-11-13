@@ -151,10 +151,9 @@ export class AppointmetsService {
       )
     `
       )
-      .eq('schedule.business.id', businessId)
+      .eq('schedule.business.id', businessId);
 
-      .order('schedule.date', { ascending: true })
-      .order('schedule.start_time', { ascending: true });
+    
 
     if (date) {
       query = query.eq('schedule.date', date);
@@ -166,10 +165,17 @@ export class AppointmetsService {
       console.error('[GET APPOINTMENTS BY BUSINESS] Error:', error);
       throw new BadRequestException(error.message);
     }
-
+    //ordenamiento manual de los datos 
+    const sortedData=(data||[]).sort((a,b)=>{
+        const dateCompare=a.schedule.date.localeCompare(b.schedule.date);
+        if(dateCompare !== 0){
+            return dateCompare;
+        }
+        return a.schedule.start_time.localeCompare(b.schedule.start_time);
+    })
     return {
-      appointments: data || [],
-      total: data?.length || 0,
+      appointments: sortedData,
+      total: sortedData.length,
       date: date || 'all',
       businessId: businessId,
     };
