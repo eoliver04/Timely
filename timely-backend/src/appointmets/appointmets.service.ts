@@ -28,7 +28,7 @@ export class AppointmetsService {
             throw new BadRequestException('Schedule not found');
         }
 
-        if (!schedule.status) {
+        if (!schedule.available) {
             console.error('[CREATE APPOINTMENT] Schedule not available');
             throw new BadRequestException('Schedule is not available');
         }
