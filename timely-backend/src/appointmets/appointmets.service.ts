@@ -38,7 +38,9 @@ export class AppointmetsService {
             .from('Appointments')
             .insert({
                 schedule_id: scheduleid,
-                user_id: clientID
+                user_id: clientID,
+                status: true
+
             })
             .select()
             .single();
