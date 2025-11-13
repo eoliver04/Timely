@@ -371,7 +371,21 @@ export async function getMyAppointments() {
   
   const data = await response.json()
   console.log('[GET MY APPOINTMENTS] Success:', data)
-  return data
+
+  // Normalizar la respuesta: el backend devuelve un array de appointments.
+  // Aquí devolvemos siempre un objeto { appointments: [...] } para que el
+  // resto del frontend pueda consumir una forma consistente.
+  if (Array.isArray(data)) {
+    return { appointments: data }
+  }
+
+  // Si el backend ya devuelve { appointments: [...] }, devolverlo tal cual.
+  if (data && typeof data === 'object' && data.appointments) {
+    return data
+  }
+
+  // Fallback seguro
+  return { appointments: [] }
 }
 
 // User Profile API calls
