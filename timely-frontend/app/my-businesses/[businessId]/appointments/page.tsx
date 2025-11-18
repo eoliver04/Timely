@@ -222,40 +222,6 @@ export default function BusinessAppointmentsPage() {
             </Alert>
           )}
 
-          {/* Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center">
-                  <p className="text-3xl font-bold text-blue-600">{appointments.length}</p>
-                  <p className="text-sm text-gray-600 mt-1">
-                    {selectedDate ? 'Reservas del día' : 'Total de reservas'}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center">
-                  <p className="text-3xl font-bold text-green-600">
-                    {appointments.filter(a => a.status).length}
-                  </p>
-                  <p className="text-sm text-gray-600 mt-1">Confirmadas</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center">
-                  <p className="text-3xl font-bold text-orange-600">
-                    {appointments.filter(a => !a.status).length}
-                  </p>
-                  <p className="text-sm text-gray-600 mt-1">Pendientes</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
           {/* Lista de Reservas */}
           {loading ? (
             <div className="flex justify-center items-center py-12">
@@ -278,85 +244,115 @@ export default function BusinessAppointmentsPage() {
               {appointments.map((appointment) => (
                 <Card 
                   key={appointment.id} 
-                  className="hover:shadow-lg transition-shadow"
+                  className="hover:shadow-xl transition-all duration-300 border-0 shadow-md overflow-hidden"
                 >
                   <CardContent className="pt-6">
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
                       
                       {/* Info de la reserva */}
-                      <div className="flex-1 space-y-3">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-blue-600 flex-shrink-0" />
-                          <span className="font-medium text-gray-900">
-                            {formatDate(appointment.schedule.date)}
-                          </span>
+                      <div className="flex-1 space-y-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-blue-50 rounded-lg">
+                            <Calendar className="h-4 w-4 text-blue-600" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500 font-medium">Fecha</p>
+                            <p className="text-sm font-semibold text-gray-900">
+                              {formatDate(appointment.schedule.date)}
+                            </p>
+                          </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-4 w-4 text-green-600 flex-shrink-0" />
-                          <span className="text-gray-700">
-                            {formatTime(appointment.schedule.start_time)} - {formatTime(appointment.schedule.end_time)}
-                          </span>
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-green-50 rounded-lg">
+                            <Clock className="h-4 w-4 text-green-600" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500 font-medium">Horario</p>
+                            <p className="text-sm font-semibold text-gray-900">
+                              {formatTime(appointment.schedule.start_time)} - {formatTime(appointment.schedule.end_time)}
+                            </p>
+                          </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                          <User className="h-4 w-4 text-purple-600 flex-shrink-0" />
-                          <span className="text-gray-700">
-                            {appointment.user?.user_name || 'Usuario sin nombre'}
-                          </span>
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-purple-50 rounded-lg">
+                            <User className="h-4 w-4 text-purple-600" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500 font-medium">Cliente</p>
+                            <p className="text-sm font-semibold text-gray-900">
+                              {appointment.user?.user_name || 'Usuario sin nombre'}
+                            </p>
+                          </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                          <Phone className="h-4 w-4 text-orange-600 flex-shrink-0" />
-                          <span className="text-gray-700">
-                            {appointment.user?.phone || 'Sin teléfono'}
-                          </span>
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-orange-50 rounded-lg">
+                            <Phone className="h-4 w-4 text-orange-600" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500 font-medium">Contacto</p>
+                            <p className="text-sm font-semibold text-gray-900">
+                              {appointment.user?.phone || 'Sin teléfono'}
+                            </p>
+                          </div>
                         </div>
                       </div>
 
-                      {/* Badge de estado y acciones */}
-                      <div className="flex flex-col gap-3 md:items-end">
-                        <Badge 
-                          variant={appointment.verified ? "default" : appointment.verified === false ? "destructive" : "secondary"}
-                          className="w-fit"
+                      {/* Estado y acciones */}
+                      <div className="flex flex-col gap-4 md:min-w-[200px]">
+                        {/* Estado visual */}
+                        <div className="flex items-center gap-2 px-4 py-2 rounded-lg border-2"
+                          style={{
+                            borderColor: appointment.verified === true ? '#10b981' : appointment.verified === false ? '#ef4444' : '#f59e0b',
+                            backgroundColor: appointment.verified === true ? '#ecfdf5' : appointment.verified === false ? '#fef2f2' : '#fef3c7'
+                          }}
                         >
-                          {appointment.verified === true ? '✓ Aprobada' : 
-                           appointment.verified === false ? '✗ Rechazada' : 
-                           '⏳ Pendiente'}
-                        </Badge>
-                        <p className="text-xs text-gray-500">
-                          ID: {appointment.id.substring(0, 8)}...
-                        </p>
+                          <span className="w-2.5 h-2.5 rounded-full animate-pulse"
+                            style={{
+                              backgroundColor: appointment.verified === true ? '#10b981' : appointment.verified === false ? '#ef4444' : '#f59e0b'
+                            }}
+                          ></span>
+                          <span className="text-sm font-semibold"
+                            style={{
+                              color: appointment.verified === true ? '#047857' : appointment.verified === false ? '#dc2626' : '#d97706'
+                            }}
+                          >
+                            {appointment.verified === true ? 'Aprobada' : 
+                             appointment.verified === false ? 'Rechazada' : 
+                             'Pendiente'}
+                          </span>
+                        </div>
 
-                        {/* Botones de aprobar/rechazar */}
-                        {appointment.verified === undefined || appointment.verified === null ? (
-                          <div className="flex gap-2 mt-2">
+                        {/* Botones de acción */}
+                        {(appointment.verified === undefined || appointment.verified === null || appointment.verified === false) && (
+                          <div className="flex flex-col gap-2">
                             <Button
                               size="sm"
-                              variant="outline"
-                              className="gap-2 text-green-600 hover:text-green-700 hover:bg-green-50 border-green-300"
+                              className="gap-2 bg-green-600 hover:bg-green-700 text-white"
                               onClick={() => handleUpdateStatus(appointment.id, true)}
                               disabled={updatingId === appointment.id}
                             >
                               <CheckCircle className="h-4 w-4" />
-                              Aprobar
+                              {updatingId === appointment.id ? 'Procesando...' : 'Aprobar'}
                             </Button>
                             <Button
                               size="sm"
                               variant="outline"
-                              className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-300"
+                              className="gap-2 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
                               onClick={() => handleUpdateStatus(appointment.id, false)}
                               disabled={updatingId === appointment.id}
                             >
                               <XCircle className="h-4 w-4" />
-                              Rechazar
+                              {updatingId === appointment.id ? 'Procesando...' : 'Rechazar'}
                             </Button>
                           </div>
-                        ) : (
-                          <div className="text-xs text-gray-500 mt-2">
-                            {appointment.verified ? 'Aprobada por el administrador' : 'Rechazada por el administrador'}
-                          </div>
                         )}
+
+                        <p className="text-xs text-gray-400 text-center">
+                          ID: {appointment.id.substring(0, 8)}...
+                        </p>
                       </div>
                     </div>
                   </CardContent>

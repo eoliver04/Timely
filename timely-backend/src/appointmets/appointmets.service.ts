@@ -293,6 +293,19 @@ export class AppointmetsService {
     
     console.log('[UPDATE APPOINTMENT] Success - rows affected:', data?.length);
     console.log('[UPDATE APPOINTMENT] Updated data:', data);
+
+    // Si se rechaza (verify === false), marcar el horario como disponible
+    if (verify === false) {
+      console.log('[UPDATE APPOINTMENT] Marking schedule as available');
+      const { error: scheduleError } = await sb
+        .from('Schedules')
+        .update({ available: true })
+        .eq('id', appointment.schedule_id);
+
+      if (scheduleError) {
+        console.error('[UPDATE APPOINTMENT] Error updating schedule:', scheduleError);
+      }
+    }
     
     return {
       message: 'Appointment updated successfully',

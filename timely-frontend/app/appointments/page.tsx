@@ -165,90 +165,98 @@ export default function AppointmentsPage() {
               {appointments.map((appointment) => (
                 <Card 
                   key={appointment.id} 
-                  className="hover:shadow-lg transition-shadow overflow-hidden"
+                  className="hover:shadow-xl transition-all duration-300 overflow-hidden border-0 shadow-md"
                 >
-                  <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white pb-4">
+                  <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white pb-6">
                     <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-                          <Building2 className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <CardTitle className="text-lg font-bold">
-                            {appointment.schedule.business.name}
-                          </CardTitle>
-                          <CardDescription className="text-blue-100 text-xs">
-                            {appointment.verify === true 
-                              ? '✓ Aprobada por el negocio' 
-                              : appointment.verify === false 
-                              ? '✗ Rechazada por el negocio'
-                              : '⏳ Esperando aprobación'}
-                          </CardDescription>
+                      <div className="flex-1">
+                        <CardTitle className="text-xl font-bold mb-2">
+                          {appointment.schedule.business.name}
+                        </CardTitle>
+                        
+                        {/* Estado moderno y minimalista */}
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm">
+                          {appointment.verify === true ? (
+                            <>
+                              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                              <span className="text-xs font-medium text-white">Aprobada</span>
+                            </>
+                          ) : appointment.verify === false ? (
+                            <>
+                              <span className="w-2 h-2 rounded-full bg-red-400"></span>
+                              <span className="text-xs font-medium text-white">Rechazada</span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
+                              <span className="text-xs font-medium text-white">Pendiente</span>
+                            </>
+                          )}
                         </div>
                       </div>
                     </div>
                   </CardHeader>
                   
-                  <CardContent className="pt-4 space-y-3">
+                  <CardContent className="pt-6 space-y-4">
                     {/* Fecha */}
-                    <div className="flex items-center gap-2 text-sm">
-                      <Calendar className="h-4 w-4 text-blue-600 flex-shrink-0" />
-                      <span className="font-medium text-gray-900">
-                        {formatDate(appointment.schedule.date)}
-                      </span>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-blue-50 rounded-lg">
+                        <Calendar className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500 font-medium">Fecha</p>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {formatDate(appointment.schedule.date)}
+                        </p>
+                      </div>
                     </div>
 
                     {/* Hora */}
-                    <div className="flex items-center gap-2 text-sm">
-                      <Clock className="h-4 w-4 text-green-600 flex-shrink-0" />
-                      <span className="text-gray-700">
-                        {formatTime(appointment.schedule.start_time)} - {formatTime(appointment.schedule.end_time)}
-                      </span>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-green-50 rounded-lg">
+                        <Clock className="h-4 w-4 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500 font-medium">Horario</p>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {formatTime(appointment.schedule.start_time)} - {formatTime(appointment.schedule.end_time)}
+                        </p>
+                      </div>
                     </div>
 
                     {/* Dirección */}
-                    <div className="flex items-start gap-2 text-sm">
-                      <MapPin className="h-4 w-4 text-red-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700 line-clamp-2">
-                        {appointment.schedule.business.address}
-                      </span>
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 bg-red-50 rounded-lg">
+                        <MapPin className="h-4 w-4 text-red-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs text-gray-500 font-medium">Ubicación</p>
+                        <p className="text-sm text-gray-700 line-clamp-2">
+                          {appointment.schedule.business.address}
+                        </p>
+                      </div>
                     </div>
 
                     {/* Teléfono */}
-                    <div className="flex items-center gap-2 text-sm">
-                      <Phone className="h-4 w-4 text-purple-600 flex-shrink-0" />
-                      <span className="text-gray-700">
-                        {appointment.schedule.business.phone}
-                      </span>
-                    </div>
-
-                    {/* Badge de estado */}
-                    <div className="pt-2">
-                      <Badge 
-                        variant={
-                          appointment.verify === true 
-                            ? "default" 
-                            : appointment.verify === false 
-                            ? "destructive" 
-                            : "secondary"
-                        }
-                        className="w-full justify-center"
-                      >
-                        {appointment.verify === true 
-                          ? '✓ Aprobada' 
-                          : appointment.verify === false 
-                          ? '✗ Rechazada'
-                          : '⏳ Pendiente de aprobación'}
-                      </Badge>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-purple-50 rounded-lg">
+                        <Phone className="h-4 w-4 text-purple-600" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500 font-medium">Contacto</p>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {appointment.schedule.business.phone}
+                        </p>
+                      </div>
                     </div>
 
                     {/* Botón de cancelar - Solo si no está rechazada */}
                     {appointment.verify !== false && (
                       <div className="pt-2">
                         <Button
-                          variant="destructive"
+                          variant="outline"
                           size="sm"
-                          className="w-full gap-2"
+                          className="w-full gap-2 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300"
                           onClick={() => handleCancelClick(appointment.id)}
                         >
                           <X className="h-4 w-4" />
