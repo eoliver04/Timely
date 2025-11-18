@@ -18,7 +18,7 @@ interface Appointment {
   schedule_id: string
   user_id: string
   status: boolean
-  verified?: boolean
+  verify?: boolean
   created_at: string
   schedule: {
     id: string
@@ -305,28 +305,28 @@ export default function BusinessAppointmentsPage() {
                         {/* Estado visual */}
                         <div className="flex items-center gap-2 px-4 py-2 rounded-lg border-2"
                           style={{
-                            borderColor: appointment.verified === true ? '#10b981' : appointment.verified === false ? '#ef4444' : '#f59e0b',
-                            backgroundColor: appointment.verified === true ? '#ecfdf5' : appointment.verified === false ? '#fef2f2' : '#fef3c7'
+                            borderColor: appointment.verify === true ? '#10b981' : appointment.verify === false ? '#ef4444' : '#f59e0b',
+                            backgroundColor: appointment.verify === true ? '#ecfdf5' : appointment.verify === false ? '#fef2f2' : '#fef3c7'
                           }}
                         >
                           <span className="w-2.5 h-2.5 rounded-full animate-pulse"
                             style={{
-                              backgroundColor: appointment.verified === true ? '#10b981' : appointment.verified === false ? '#ef4444' : '#f59e0b'
+                              backgroundColor: appointment.verify === true ? '#10b981' : appointment.verify === false ? '#ef4444' : '#f59e0b'
                             }}
                           ></span>
                           <span className="text-sm font-semibold"
                             style={{
-                              color: appointment.verified === true ? '#047857' : appointment.verified === false ? '#dc2626' : '#d97706'
+                              color: appointment.verify === true ? '#047857' : appointment.verify === false ? '#dc2626' : '#d97706'
                             }}
                           >
-                            {appointment.verified === true ? 'Aprobada' : 
-                             appointment.verified === false ? 'Rechazada' : 
+                            {appointment.verify === true ? 'Aprobada' : 
+                             appointment.verify === false ? 'Rechazada' : 
                              'Pendiente'}
                           </span>
                         </div>
 
                         {/* Botones de acción */}
-                        {(appointment.verified === undefined || appointment.verified === null || appointment.verified === false) && (
+                        {(appointment.verify === undefined || appointment.verify === null || appointment.verify === false) && (
                           <div className="flex flex-col gap-2">
                             <Button
                               size="sm"
