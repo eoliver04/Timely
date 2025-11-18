@@ -2,21 +2,23 @@
 
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { getBusinessAppointments, getBusinessById } from "@/services/api"
+import { getBusinessAppointments, getBusinessById, updateAppointmentStatus } from "@/services/api"
 import { ProtectedRoute } from "@/components/protected-route"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Calendar, Clock, User, Phone, ArrowLeft, CalendarDays } from "lucide-react"
+import { Calendar, Clock, User, Phone, ArrowLeft, CalendarDays, CheckCircle, XCircle } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useToast } from "@/hooks/use-toast"
 
 interface Appointment {
   id: string
   schedule_id: string
   user_id: string
   status: boolean
+  verified?: boolean
   created_at: string
   schedule: {
     id: string
@@ -48,6 +50,7 @@ interface BusinessAppointmentsResponse {
 export default function BusinessAppointmentsPage() {
   const params = useParams()
   const router = useRouter()
+  const { toast } = useToast()
   const businessId = params.businessId as string
 
   const [appointments, setAppointments] = useState<Appointment[]>([])
@@ -55,6 +58,7 @@ export default function BusinessAppointmentsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [selectedDate, setSelectedDate] = useState<string>("")
+  const [updatingId, setUpdatingId] = useState<string | null>(null)
 
   useEffect(() => {
     loadBusinessInfo()
@@ -111,6 +115,30 @@ export default function BusinessAppointmentsPage() {
 
   const clearDateFilter = () => {
     setSelectedDate("")
+  }
+
+  const handleUpdateStatus = async (appointmentId: string, verify: boolean) => {
+    try {
+      setUpdatingId(appointmentId)
+      await updateAppointmentStatus(appointmentId, verify)
+      
+      toast({
+        title: verify ? "Reserva aprobada" : "Reserva rechazada",
+        description: `La reserva ha sido ${verify ? 'aprobada' : 'rechazada'} exitosamente`,
+      })
+      
+      // Recargar appointments
+      await loadAppointments()
+    } catch (err: any) {
+      console.error("Error updating appointment status:", err)
+      toast({
+        title: "Error",
+        description: err.message || "Error al actualizar el estado de la reserva",
+        variant: "destructive",
+      })
+    } finally {
+      setUpdatingId(null)
+    }
   }
 
   return (
@@ -286,17 +314,49 @@ export default function BusinessAppointmentsPage() {
                         </div>
                       </div>
 
-                      {/* Badge de estado */}
-                      <div className="flex flex-col gap-2 md:items-end">
+                      {/* Badge de estado y acciones */}
+                      <div className="flex flex-col gap-3 md:items-end">
                         <Badge 
-                          variant={appointment.status ? "default" : "secondary"}
+                          variant={appointment.verified ? "default" : appointment.verified === false ? "destructive" : "secondary"}
                           className="w-fit"
                         >
-                          {appointment.status ? '✓ Confirmada' : 'Pendiente'}
+                          {appointment.verified === true ? '✓ Aprobada' : 
+                           appointment.verified === false ? '✗ Rechazada' : 
+                           '⏳ Pendiente'}
                         </Badge>
                         <p className="text-xs text-gray-500">
                           ID: {appointment.id.substring(0, 8)}...
                         </p>
+
+                        {/* Botones de aprobar/rechazar */}
+                        {appointment.verified === undefined || appointment.verified === null ? (
+                          <div className="flex gap-2 mt-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="gap-2 text-green-600 hover:text-green-700 hover:bg-green-50 border-green-300"
+                              onClick={() => handleUpdateStatus(appointment.id, true)}
+                              disabled={updatingId === appointment.id}
+                            >
+                              <CheckCircle className="h-4 w-4" />
+                              Aprobar
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-300"
+                              onClick={() => handleUpdateStatus(appointment.id, false)}
+                              disabled={updatingId === appointment.id}
+                            >
+                              <XCircle className="h-4 w-4" />
+                              Rechazar
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="text-xs text-gray-500 mt-2">
+                            {appointment.verified ? 'Aprobada por el administrador' : 'Rechazada por el administrador'}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </CardContent>

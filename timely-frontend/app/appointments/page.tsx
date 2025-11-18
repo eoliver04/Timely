@@ -2,13 +2,24 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { getMyAppointments } from "@/services/api"
+import { getMyAppointments, cancelAppointment } from "@/services/api"
 import { ProtectedRoute } from "@/components/protected-route"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Calendar, Clock, MapPin, Building2, Phone, Plus } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { Calendar, Clock, MapPin, Building2, Phone, Plus, X } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
 
 interface Appointment {
   id: string
@@ -34,9 +45,13 @@ interface Appointment {
 
 export default function AppointmentsPage() {
   const router = useRouter()
+  const { toast } = useToast()
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
+  const [appointmentToCancel, setAppointmentToCancel] = useState<string | null>(null)
+  const [cancelling, setCancelling] = useState(false)
 
   useEffect(() => {
     loadAppointments()
@@ -68,6 +83,40 @@ export default function AppointmentsPage() {
 
   const formatTime = (time: string) => {
     return time.substring(0, 5) // "10:00:00" -> "10:00"
+  }
+
+  const handleCancelClick = (appointmentId: string) => {
+    setAppointmentToCancel(appointmentId)
+    setCancelDialogOpen(true)
+  }
+
+  const handleCancelConfirm = async () => {
+    if (!appointmentToCancel) return
+
+    try {
+      setCancelling(true)
+      await cancelAppointment(appointmentToCancel)
+      
+      toast({
+        title: "Reserva cancelada",
+        description: "Tu reserva ha sido cancelada exitosamente",
+      })
+      
+      setCancelDialogOpen(false)
+      setAppointmentToCancel(null)
+      
+      // Recargar appointments
+      await loadAppointments()
+    } catch (err: any) {
+      console.error("Error cancelling appointment:", err)
+      toast({
+        title: "Error",
+        description: err.message || "Error al cancelar la reserva",
+        variant: "destructive",
+      })
+    } finally {
+      setCancelling(false)
+    }
   }
 
   return (
@@ -177,11 +226,47 @@ export default function AppointmentsPage() {
                         {appointment.status ? '✓ Reserva Confirmada' : 'Pendiente'}
                       </Badge>
                     </div>
+
+                    {/* Botón de cancelar */}
+                    <div className="pt-2">
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="w-full gap-2"
+                        onClick={() => handleCancelClick(appointment.id)}
+                      >
+                        <X className="h-4 w-4" />
+                        Cancelar Reserva
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
           )}
+
+          {/* Dialog de confirmación de cancelación */}
+          <AlertDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>¿Cancelar reserva?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta acción no se puede deshacer. La reserva será cancelada y el horario
+                  quedará disponible nuevamente.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={cancelling}>No, mantener</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleCancelConfirm}
+                  disabled={cancelling}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  {cancelling ? "Cancelando..." : "Sí, cancelar"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
     </ProtectedRoute>

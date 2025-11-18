@@ -149,11 +149,9 @@ export class AppointmetsService {
         user_name,
         phone
       )
-    `
+    `,
       )
       .eq('schedule.business.id', businessId);
-
-    
 
     if (date) {
       query = query.eq('schedule.date', date);
@@ -165,19 +163,122 @@ export class AppointmetsService {
       console.error('[GET APPOINTMENTS BY BUSINESS] Error:', error);
       throw new BadRequestException(error.message);
     }
-    //ordenamiento manual de los datos 
-    const sortedData=(data||[]).sort((a,b)=>{
-        const dateCompare=a.schedule.date.localeCompare(b.schedule.date);
-        if(dateCompare !== 0){
-            return dateCompare;
-        }
-        return a.schedule.start_time.localeCompare(b.schedule.start_time);
-    })
+    //ordenamiento manual de los datos
+    const sortedData = (data || []).sort((a, b) => {
+      const dateCompare = a.schedule.date.localeCompare(b.schedule.date);
+      if (dateCompare !== 0) {
+        return dateCompare;
+      }
+      return a.schedule.start_time.localeCompare(b.schedule.start_time);
+    });
     return {
       appointments: sortedData,
       total: sortedData.length,
       date: date || 'all',
       businessId: businessId,
+    };
+  }
+
+  //cancelar appointment cliente
+
+  async cancelAppointment(
+    appointmentId: string,
+    authHeader: string,
+    userId: string,
+  ) {
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new BadRequestException('Invalid authorization header');
+    }
+
+    const token = authHeader.split(' ')[1];
+    const sb = createSupabaseClientForToken(token);
+
+    //verificar que el appointment pertenece al usario
+
+    const { data: appointment, error: getError } = await sb
+      .from('Appointments')
+      .select('*,schedule_id')
+      .eq('id', appointmentId)
+      .eq('user_id', userId)
+      .single();
+
+    if (getError || !appointment) {
+      throw new BadRequestException('Appointment not found');
+    }
+    //eliminar el horario
+    const { error: deleError } = await sb
+      .from('Appointments')
+      .delete()
+      .eq('id', appointmentId);
+    if (deleError) {
+      throw new BadRequestException(deleError.message);
+    }
+    //marcarlo como libre
+    const { error: updateError } = await sb
+      .from('Schedules')
+      .update({ available: true })
+      .eq('id', appointment.schedule_id);
+
+    if (updateError) {
+      throw new BadRequestException('Error to update the appiontment');
+    }
+
+    return {
+      message: 'Appointment cancelled successfully',
+    };
+  }
+
+  //chequeo de appointment admin
+  async appointmentUpdate(
+    appointmentId: string,
+    verify: boolean,
+    authHeader: string,
+    userId: string,
+  ) {
+    console.log('[update appointment] appotinment ID:', appointmentId);
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new BadRequestException('Invalid authorization header');
+    }
+
+    const token = authHeader.split(' ')[1];
+    const sb = createSupabaseClientForToken(token);
+
+    const { data: appointment, error: getError } = await sb
+    .from('Appointments')
+    .select(`
+      *,
+      schedule:Schedules (
+        *,
+        business:Businesses (
+          id,
+          owner_id
+        )
+      )
+    `)
+    .eq('id',appointmentId)
+    .single();
+
+    if(getError || !appointment){
+      throw new BadRequestException('Appointment not found');
+    }
+
+    if(appointment.schedule.business.owner_id !== userId){
+      throw new BadRequestException('Unauthorized');
+    }
+
+    //actualizacion de estado
+    const {data,error:updateError}=await sb 
+      .from('Appointments')
+      .update({ verified: verify })
+      .eq('id', appointmentId)
+      .select()
+      .single();
+    if(updateError){
+      throw new BadRequestException('Error updating appointment');
+    }
+    return {
+      message: 'Appointment updated successfully',
+      appointment: data,
     };
   }
 }
