@@ -490,16 +490,18 @@ CREATE TABLE user_status (
 ```
 timely-frontend/
 ├── app/
-│   ├── appointments/          # Gestión de citas
-│   │   ├── page.tsx          # Lista de citas
-│   │   └── new/              # Nueva cita
+│   ├── appointments/          # Gestión de citas del cliente
+│   │   └── page.tsx          # Lista de mis citas
 │   ├── businesses/           # Catálogo de negocios
 │   │   ├── page.tsx
 │   │   ├── [id]/             # Detalle de negocio
+│   │   │   └── page.tsx      # Ver horarios disponibles
 │   │   └── new/              # Crear negocio
 │   ├── my-businesses/        # Negocios del admin
 │   │   ├── page.tsx
 │   │   └── [businessId]/
+│   │       ├── appointments/  # Gestión de citas del negocio
+│   │       │   └── page.tsx  # Aprobar/Rechazar/Eliminar
 │   │       └── schedules/    # Gestión de horarios
 │   ├── dashboard/            # Dashboard principal
 │   ├── login/                # Inicio de sesión
@@ -507,14 +509,25 @@ timely-frontend/
 │   └── profile/              # Perfil de usuario
 ├── components/
 │   ├── ui/                   # Componentes Shadcn
+│   │   ├── button.tsx
+│   │   ├── card.tsx
+│   │   ├── badge.tsx
+│   │   ├── alert-dialog.tsx
+│   │   └── ...
 │   ├── navbar.tsx            # Barra de navegación
-│   └── protected-route.tsx   # HOC de protección
+│   ├── protected-route.tsx   # HOC de protección
+│   └── admin-route.tsx       # HOC para admins
 ├── services/
 │   └── api.ts                # Llamadas al backend
+│       ├── cancelAppointment()
+│       ├── updateAppointmentStatus()
+│       └── getBusinessAppointments()
 ├── lib/
 │   ├── auth.ts               # Lógica de autenticación
-│   └── auth-utils.ts         # Utilidades de auth
-└── types/                    # Definiciones TypeScript
+│   ├── auth-utils.ts         # Utilidades de auth
+│   └── supabase-client.ts    # Cliente Supabase
+└── types/
+    └── globals.d.ts          # Definiciones TypeScript
 ```
 
 ### Backend (timely-backend/)
@@ -533,10 +546,15 @@ timely-backend/
 │   │   ├── businesses.guard.ts    # JWT verification
 │   │   ├── adminAccess.guard.ts   # Admin check
 │   │   └── checkOwner.guard.ts    # Ownership check
+│   ├── appointmets/              # Sistema de citas
+│   │   ├── appointmets.controller.ts
+│   │   ├── appointmets.service.ts
+│   │   └── appointmets.guard.ts   # JWT & auth guard
 │   ├── schedules/
 │   │   ├── schedules.controller.ts
 │   │   ├── schedules.service.ts
 │   │   ├── schedules.guard.ts     # Owner verification
+│   │   ├── validator.guard.ts     # Data validation
 │   │   └── dto/
 │   │       └── schedules.dto.ts
 │   ├── users/
@@ -629,6 +647,87 @@ timely-backend/
   "start_time": "09:00",
   "end_time": "17:00",
   "available": true
+}
+```
+
+### Citas/Reservas (Appointments)
+
+| Método | Endpoint | Descripción | Auth |
+|--------|----------|-------------|------|
+| POST | `/appointments/schedule/:scheduleId` | Crear una cita | Sí (Cliente) |
+| GET | `/appointments/me` | Obtener mis citas | Sí |
+| GET | `/appointments/business/:businessId` | Citas de un negocio | Sí (Owner) |
+| GET | `/appointments/business/:businessId?date=2024-01-15` | Citas por fecha | Sí (Owner) |
+| PATCH | `/appointments/:appointmentId/status` | Aprobar/Rechazar cita | Sí (Owner) |
+| DELETE | `/appointments/:appointmentId` | Cancelar/Eliminar cita | Sí (Cliente/Owner) |
+
+**Ejemplo Request (Create Appointment):**
+```json
+// POST /appointments/schedule/:scheduleId
+// El user_id se obtiene automáticamente del JWT
+// El schedule_id viene del parámetro de la URL
+```
+
+**Ejemplo Request (Update Status - Admin):**
+```json
+{
+  "verify": true  // true = aprobar, false = rechazar
+}
+```
+
+**Response (Get My Appointments):**
+```json
+[
+  {
+    "id": "uuid",
+    "schedule_id": "uuid",
+    "user_id": "uuid",
+    "status": true,
+    "verify": false,
+    "created_at": "2024-01-15T10:00:00",
+    "schedule": {
+      "id": "uuid",
+      "date": "2024-01-15",
+      "start_time": "09:00:00",
+      "end_time": "10:00:00",
+      "business": {
+        "id": "uuid",
+        "name": "Peluquería María",
+        "address": "Av. Principal 123",
+        "phone": "+56912345678"
+      }
+    }
+  }
+]
+```
+
+**Response (Get Business Appointments - Admin):**
+```json
+{
+  "appointments": [
+    {
+      "id": "uuid",
+      "schedule_id": "uuid",
+      "user_id": "uuid",
+      "status": true,
+      "verify": false,
+      "created_at": "2024-01-15T10:00:00",
+      "schedule": {
+        "id": "uuid",
+        "date": "2024-01-15",
+        "start_time": "09:00:00",
+        "end_time": "10:00:00"
+      },
+      "user": {
+        "id": "uuid",
+        "user_name": "Juan Pérez",
+        "phone": "+56912345678"
+      }
+    }
+  ],
+  "total": 1,
+  "date": "2024-01-15",
+  "businessId": "uuid"
 }
 ```
 
