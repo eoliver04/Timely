@@ -180,7 +180,7 @@ export class AppointmetsService {
     };
   }
 
-  //cancelar appointment cliente
+  //cancelar appointment cliente o admin
 
   async cancelAppointment(
     appointmentId: string,
@@ -194,34 +194,52 @@ export class AppointmetsService {
     const token = authHeader.split(' ')[1];
     const sb = createSupabaseClientForToken(token);
 
-    //verificar que el appointment pertenece al usario
-
+    // Obtener el appointment con información del negocio
     const { data: appointment, error: getError } = await sb
       .from('Appointments')
-      .select('*,schedule_id')
+      .select(`
+        *,
+        schedule:Schedules (
+          *,
+          business:Businesses (
+            id,
+            owner_id
+          )
+        )
+      `)
       .eq('id', appointmentId)
-      .eq('user_id', userId)
       .single();
 
     if (getError || !appointment) {
       throw new BadRequestException('Appointment not found');
     }
-    //eliminar el horario
-    const { error: deleError } = await sb
+
+    // Verificar que sea el cliente O el dueño del negocio
+    const isClient = appointment.user_id === userId;
+    const isBusinessOwner = appointment.schedule.business.owner_id === userId;
+
+    if (!isClient && !isBusinessOwner) {
+      throw new BadRequestException('Unauthorized to cancel this appointment');
+    }
+
+    // Eliminar el appointment
+    const { error: deleteError } = await sb
       .from('Appointments')
       .delete()
       .eq('id', appointmentId);
-    if (deleError) {
-      throw new BadRequestException(deleError.message);
+
+    if (deleteError) {
+      throw new BadRequestException(deleteError.message);
     }
-    //marcarlo como libre
+
+    // Marcar el horario como disponible
     const { error: updateError } = await sb
       .from('Schedules')
       .update({ available: true })
       .eq('id', appointment.schedule_id);
 
     if (updateError) {
-      throw new BadRequestException('Error to update the appiontment');
+      throw new BadRequestException('Error updating schedule availability');
     }
 
     return {
