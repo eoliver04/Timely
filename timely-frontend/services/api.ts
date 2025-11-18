@@ -414,6 +414,50 @@ export async function getBusinessAppointments(businessId: string, date?: string)
   return data
 }
 
+export async function cancelAppointment(appointmentId: string) {
+  console.log('[CANCEL APPOINTMENT] Appointment ID:', appointmentId)
+  
+  const response = await fetch(`${API_BASE_URL}/appointments/${appointmentId}`, {
+    method: 'DELETE',
+    headers: await getHeaders(),
+  })
+  
+  console.log('[CANCEL APPOINTMENT] Response status:', response.status)
+  
+  if (!response.ok) {
+    const error = await response.json()
+    console.error('[CANCEL APPOINTMENT] Error:', error)
+    throw new Error(error.message || "Failed to cancel appointment")
+  }
+  
+  const data = await response.json()
+  console.log('[CANCEL APPOINTMENT] Success:', data)
+  return data
+}
+
+export async function updateAppointmentStatus(appointmentId: string, verify: boolean) {
+  console.log('[UPDATE APPOINTMENT STATUS] Appointment ID:', appointmentId)
+  console.log('[UPDATE APPOINTMENT STATUS] Verify:', verify)
+  
+  const response = await fetch(`${API_BASE_URL}/appointments/${appointmentId}/status`, {
+    method: 'PATCH',
+    headers: await getHeaders(),
+    body: JSON.stringify({ verify }),
+  })
+  
+  console.log('[UPDATE APPOINTMENT STATUS] Response status:', response.status)
+  
+  if (!response.ok) {
+    const error = await response.json()
+    console.error('[UPDATE APPOINTMENT STATUS] Error:', error)
+    throw new Error(error.message || "Failed to update appointment status")
+  }
+  
+  const data = await response.json()
+  console.log('[UPDATE APPOINTMENT STATUS] Success:', data)
+  return data
+}
+
 // User Profile API calls
 export async function getCurrentUserProfile() {
   const response = await fetch(`${API_BASE_URL}/users/me`, {

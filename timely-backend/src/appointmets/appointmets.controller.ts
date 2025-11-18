@@ -1,4 +1,4 @@
-import { Controller, Param, Post , Headers, Req, UseGuards, Get, Header, Query} from '@nestjs/common';
+import { Controller, Param, Post , Headers, Req, UseGuards, Get,Body, Query, Delete, Patch} from '@nestjs/common';
 import { AppointmetsService } from './appointmets.service';
 import { AppointmentsGuard } from './appointmets.guard';
 
@@ -37,5 +37,27 @@ export class AppointmetsController {
     @Query('date') date?:string,
   ){
     return this.appointmetsService.getAppointmentsByBusiness(businessId, authHeader, date);
+  }
+
+  //cancelar appointment cliente
+  @UseGuards(AppointmentsGuard)
+  @Delete(':appointmentId')
+  async cancelAppointment(
+    @Param('appointmentId') appointmentId: string,
+    @Headers('authorization') authHeader: string,
+    @Req() req: any,
+  ){
+    return this.appointmetsService.cancelAppointment(appointmentId, authHeader, req.user.id);
+  }
+  //actualizacion del estado de reserva por admin
+  @UseGuards(AppointmentsGuard)
+  @Patch(':appointmentId/status')
+  async appointmentUpdate(
+    @Param('appointmentId') appointmentId: string,
+    @Body() body: { verify: boolean },
+    @Headers('authorization') authHeader: string,
+    @Req() req: any
+  ){
+    return this.appointmetsService.appointmentUpdate(appointmentId, body.verify, authHeader, req.user.id);
   }
 }
