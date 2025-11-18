@@ -47,6 +47,7 @@ export class AppointmetsService {
         schedule_id: scheduleid,
         user_id: clientID,
         status: true,
+        verify: false, // Por defecto pendiente de aprobación
       })
       .select()
       .single();
