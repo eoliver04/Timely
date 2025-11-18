@@ -26,6 +26,7 @@ interface Appointment {
   schedule_id: string
   user_id: string
   status: boolean
+  verify?: boolean
   created_at: string
   schedule: {
     id: string
@@ -177,7 +178,11 @@ export default function AppointmentsPage() {
                             {appointment.schedule.business.name}
                           </CardTitle>
                           <CardDescription className="text-blue-100 text-xs">
-                            {appointment.status ? 'Confirmada' : 'Pendiente'}
+                            {appointment.verify === true 
+                              ? '✓ Aprobada por el negocio' 
+                              : appointment.verify === false 
+                              ? '✗ Rechazada por el negocio'
+                              : '⏳ Esperando aprobación'}
                           </CardDescription>
                         </div>
                       </div>
@@ -220,25 +225,37 @@ export default function AppointmentsPage() {
                     {/* Badge de estado */}
                     <div className="pt-2">
                       <Badge 
-                        variant={appointment.status ? "default" : "secondary"}
+                        variant={
+                          appointment.verify === true 
+                            ? "default" 
+                            : appointment.verify === false 
+                            ? "destructive" 
+                            : "secondary"
+                        }
                         className="w-full justify-center"
                       >
-                        {appointment.status ? '✓ Reserva Confirmada' : 'Pendiente'}
+                        {appointment.verify === true 
+                          ? '✓ Aprobada' 
+                          : appointment.verify === false 
+                          ? '✗ Rechazada'
+                          : '⏳ Pendiente de aprobación'}
                       </Badge>
                     </div>
 
-                    {/* Botón de cancelar */}
-                    <div className="pt-2">
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        className="w-full gap-2"
-                        onClick={() => handleCancelClick(appointment.id)}
-                      >
-                        <X className="h-4 w-4" />
-                        Cancelar Reserva
-                      </Button>
-                    </div>
+                    {/* Botón de cancelar - Solo si no está rechazada */}
+                    {appointment.verify !== false && (
+                      <div className="pt-2">
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="w-full gap-2"
+                          onClick={() => handleCancelClick(appointment.id)}
+                        >
+                          <X className="h-4 w-4" />
+                          Cancelar Reserva
+                        </Button>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ))}

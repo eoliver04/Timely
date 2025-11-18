@@ -9,7 +9,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin:[
-      'http://localhost:3001',  // Tu frontend Next.js
+      'http://localhost:3000',  // Tu frontend Next.js
       'http://localhost:3002',  
       'http://127.0.0.1:3001',
       'https://timely-omega-eight.vercel.app',
@@ -25,6 +25,6 @@ async function bootstrap() {
     ],
     credentials: true,  // Permite cookies y headers de auth
   })
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 3001);
 }
 bootstrap();
