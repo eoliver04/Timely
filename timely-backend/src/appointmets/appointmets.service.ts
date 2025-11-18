@@ -276,14 +276,13 @@ export class AppointmetsService {
     }
 
     //actualizacion de estado
-    console.log('[UPDATE APPOINTMENT] Updating with:', { verified: verify });
+    console.log('[UPDATE APPOINTMENT] Updating with:', { verify: verify });
     
     const {data,error:updateError}=await sb 
       .from('Appointments')
       .update({ verify: verify })
       .eq('id', appointmentId)
-      .select()
-      .single();
+      .select();
       
     if(updateError){
       console.error('[UPDATE APPOINTMENT] Update error:', updateError);
@@ -291,11 +290,12 @@ export class AppointmetsService {
       throw new BadRequestException(`Error updating appointment: ${updateError.message || updateError.code}`);
     }
     
-    console.log('[UPDATE APPOINTMENT] Success:', data);
+    console.log('[UPDATE APPOINTMENT] Success - rows affected:', data?.length);
+    console.log('[UPDATE APPOINTMENT] Updated data:', data);
     
     return {
       message: 'Appointment updated successfully',
-      appointment: data,
+      appointment: data?.[0],
     };
   }
 }
