@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { getBusinessAppointments, getBusinessById, updateAppointmentStatus } from "@/services/api"
+import { getBusinessAppointments, getBusinessById, updateAppointmentStatus, cancelAppointment } from "@/services/api"
 import { ProtectedRoute } from "@/components/protected-route"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Calendar, Clock, User, Phone, ArrowLeft, CalendarDays, CheckCircle, XCircle } from "lucide-react"
+import { Calendar, Clock, User, Phone, ArrowLeft, CalendarDays, CheckCircle, XCircle, Trash2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
@@ -134,6 +134,34 @@ export default function BusinessAppointmentsPage() {
       toast({
         title: "Error",
         description: err.message || "Error al actualizar el estado de la reserva",
+        variant: "destructive",
+      })
+    } finally {
+      setUpdatingId(null)
+    }
+  }
+
+  const handleDeleteAppointment = async (appointmentId: string) => {
+    if (!confirm('¿Estás seguro de que deseas eliminar esta reserva? Esta acción no se puede deshacer.')) {
+      return
+    }
+
+    try {
+      setUpdatingId(appointmentId)
+      await cancelAppointment(appointmentId)
+      
+      toast({
+        title: "Reserva eliminada",
+        description: "La reserva ha sido eliminada exitosamente",
+      })
+      
+      // Recargar appointments
+      await loadAppointments()
+    } catch (err: any) {
+      console.error("Error deleting appointment:", err)
+      toast({
+        title: "Error",
+        description: err.message || "Error al eliminar la reserva",
         variant: "destructive",
       })
     } finally {
@@ -349,6 +377,18 @@ export default function BusinessAppointmentsPage() {
                             </Button>
                           </div>
                         )}
+
+                        {/* Botón de eliminar - Siempre visible */}
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="gap-2 text-gray-500 hover:text-red-600 hover:bg-red-50"
+                          onClick={() => handleDeleteAppointment(appointment.id)}
+                          disabled={updatingId === appointment.id}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          Eliminar
+                        </Button>
 
                         <p className="text-xs text-gray-400 text-center">
                           ID: {appointment.id.substring(0, 8)}...
