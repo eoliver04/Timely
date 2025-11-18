@@ -235,7 +235,11 @@ export class AppointmetsService {
     authHeader: string,
     userId: string,
   ) {
-    console.log('[update appointment] appotinment ID:', appointmentId);
+    console.log('[UPDATE APPOINTMENT] Appointment ID:', appointmentId);
+    console.log('[UPDATE APPOINTMENT] Verify value:', verify);
+    console.log('[UPDATE APPOINTMENT] Verify type:', typeof verify);
+    console.log('[UPDATE APPOINTMENT] User ID:', userId);
+    
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       throw new BadRequestException('Invalid authorization header');
     }
@@ -259,23 +263,36 @@ export class AppointmetsService {
     .single();
 
     if(getError || !appointment){
+      console.error('[UPDATE APPOINTMENT] Get error:', getError);
       throw new BadRequestException('Appointment not found');
     }
 
+    console.log('[UPDATE APPOINTMENT] Appointment found:', appointment.id);
+    console.log('[UPDATE APPOINTMENT] Business owner:', appointment.schedule.business.owner_id);
+
     if(appointment.schedule.business.owner_id !== userId){
+      console.error('[UPDATE APPOINTMENT] Unauthorized - Owner mismatch');
       throw new BadRequestException('Unauthorized');
     }
 
     //actualizacion de estado
+    console.log('[UPDATE APPOINTMENT] Updating with:', { verified: verify });
+    
     const {data,error:updateError}=await sb 
       .from('Appointments')
       .update({ verified: verify })
       .eq('id', appointmentId)
       .select()
       .single();
+      
     if(updateError){
-      throw new BadRequestException('Error updating appointment');
+      console.error('[UPDATE APPOINTMENT] Update error:', updateError);
+      console.error('[UPDATE APPOINTMENT] Update error details:', JSON.stringify(updateError));
+      throw new BadRequestException(`Error updating appointment: ${updateError.message || updateError.code}`);
     }
+    
+    console.log('[UPDATE APPOINTMENT] Success:', data);
+    
     return {
       message: 'Appointment updated successfully',
       appointment: data,
