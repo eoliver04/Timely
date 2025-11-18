@@ -280,7 +280,7 @@ export class AppointmetsService {
     
     const {data,error:updateError}=await sb 
       .from('Appointments')
-      .update({ verified: verify })
+      .update({ verify: verify })
       .eq('id', appointmentId)
       .select()
       .single();
