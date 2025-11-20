@@ -26,7 +26,7 @@ interface Appointment {
   schedule_id: string
   user_id: string
   status: boolean
-  verify?: boolean
+  verify?: 'pending' | 'approved' | 'canceled'
   created_at: string
   schedule: {
     id: string
@@ -176,15 +176,15 @@ export default function AppointmentsPage() {
                         
                         {/* Estado moderno y minimalista */}
                         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm">
-                          {appointment.verify === true ? (
+                          {appointment.verify === 'approved' ? (
                             <>
                               <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
                               <span className="text-xs font-medium text-white">Aprobada</span>
                             </>
-                          ) : appointment.verify === false ? (
+                          ) : appointment.verify === 'canceled' ? (
                             <>
                               <span className="w-2 h-2 rounded-full bg-red-400"></span>
-                              <span className="text-xs font-medium text-white">Rechazada</span>
+                              <span className="text-xs font-medium text-white">Cancelada</span>
                             </>
                           ) : (
                             <>
@@ -250,8 +250,8 @@ export default function AppointmentsPage() {
                       </div>
                     </div>
 
-                    {/* Botón de cancelar - Solo si no está rechazada */}
-                    {appointment.verify !== false && (
+                    {/* Botón de cancelar - Solo si no está cancelada */}
+                    {appointment.verify !== 'canceled' && (
                       <div className="pt-2">
                         <Button
                           variant="outline"
