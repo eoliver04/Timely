@@ -18,7 +18,7 @@ interface Appointment {
   schedule_id: string
   user_id: string
   status: boolean
-  verify?: boolean
+  verify?: 'pending' | 'approved' | 'canceled'
   created_at: string
   schedule: {
     id: string
@@ -117,14 +117,14 @@ export default function BusinessAppointmentsPage() {
     setSelectedDate("")
   }
 
-  const handleUpdateStatus = async (appointmentId: string, verify: boolean) => {
+  const handleUpdateStatus = async (appointmentId: string, verify: 'approved' | 'canceled') => {
     try {
       setUpdatingId(appointmentId)
       await updateAppointmentStatus(appointmentId, verify)
       
       toast({
-        title: verify ? "Reserva aprobada" : "Reserva rechazada",
-        description: `La reserva ha sido ${verify ? 'aprobada' : 'rechazada'} exitosamente`,
+        title: verify === 'approved' ? "Reserva aprobada" : "Reserva cancelada",
+        description: `La reserva ha sido ${verify === 'approved' ? 'aprobada' : 'cancelada'} exitosamente`,
       })
       
       // Recargar appointments
@@ -333,33 +333,33 @@ export default function BusinessAppointmentsPage() {
                         {/* Estado visual */}
                         <div className="flex items-center gap-2 px-4 py-2 rounded-lg border-2"
                           style={{
-                            borderColor: appointment.verify === true ? '#10b981' : appointment.verify === false ? '#ef4444' : '#f59e0b',
-                            backgroundColor: appointment.verify === true ? '#ecfdf5' : appointment.verify === false ? '#fef2f2' : '#fef3c7'
+                            borderColor: appointment.verify === 'approved' ? '#10b981' : appointment.verify === 'canceled' ? '#ef4444' : '#f59e0b',
+                            backgroundColor: appointment.verify === 'approved' ? '#ecfdf5' : appointment.verify === 'canceled' ? '#fef2f2' : '#fef3c7'
                           }}
                         >
                           <span className="w-2.5 h-2.5 rounded-full animate-pulse"
                             style={{
-                              backgroundColor: appointment.verify === true ? '#10b981' : appointment.verify === false ? '#ef4444' : '#f59e0b'
+                              backgroundColor: appointment.verify === 'approved' ? '#10b981' : appointment.verify === 'canceled' ? '#ef4444' : '#f59e0b'
                             }}
                           ></span>
                           <span className="text-sm font-semibold"
                             style={{
-                              color: appointment.verify === true ? '#047857' : appointment.verify === false ? '#dc2626' : '#d97706'
+                              color: appointment.verify === 'approved' ? '#047857' : appointment.verify === 'canceled' ? '#dc2626' : '#d97706'
                             }}
                           >
-                            {appointment.verify === true ? 'Aprobada' : 
-                             appointment.verify === false ? 'Rechazada' : 
+                            {appointment.verify === 'approved' ? 'Aprobada' : 
+                             appointment.verify === 'canceled' ? 'Cancelada' : 
                              'Pendiente'}
                           </span>
                         </div>
 
                         {/* Botones de acción */}
-                        {(appointment.verify === undefined || appointment.verify === null || appointment.verify === false) && (
+                        {(appointment.verify === 'pending' || !appointment.verify) && (
                           <div className="flex flex-col gap-2">
                             <Button
                               size="sm"
                               className="gap-2 bg-green-600 hover:bg-green-700 text-white"
-                              onClick={() => handleUpdateStatus(appointment.id, true)}
+                              onClick={() => handleUpdateStatus(appointment.id, 'approved')}
                               disabled={updatingId === appointment.id}
                             >
                               <CheckCircle className="h-4 w-4" />
@@ -369,11 +369,11 @@ export default function BusinessAppointmentsPage() {
                               size="sm"
                               variant="outline"
                               className="gap-2 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
-                              onClick={() => handleUpdateStatus(appointment.id, false)}
+                              onClick={() => handleUpdateStatus(appointment.id, 'canceled')}
                               disabled={updatingId === appointment.id}
                             >
                               <XCircle className="h-4 w-4" />
-                              {updatingId === appointment.id ? 'Procesando...' : 'Rechazar'}
+                              {updatingId === appointment.id ? 'Procesando...' : 'Cancelar'}
                             </Button>
                           </div>
                         )}

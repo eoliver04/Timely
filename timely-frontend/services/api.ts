@@ -435,7 +435,7 @@ export async function cancelAppointment(appointmentId: string) {
   return data
 }
 
-export async function updateAppointmentStatus(appointmentId: string, verify: boolean) {
+export async function updateAppointmentStatus(appointmentId: string, verify: 'approved' | 'canceled') {
   console.log('[UPDATE APPOINTMENT STATUS] Appointment ID:', appointmentId)
   console.log('[UPDATE APPOINTMENT STATUS] Verify:', verify)
   

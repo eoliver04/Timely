@@ -54,7 +54,7 @@ export class AppointmetsController {
   @Patch(':appointmentId/status')
   async appointmentUpdate(
     @Param('appointmentId') appointmentId: string,
-    @Body() body: { verify: boolean },
+    @Body() body: { verify: 'approved' | 'canceled' },
     @Headers('authorization') authHeader: string,
     @Req() req: any
   ){

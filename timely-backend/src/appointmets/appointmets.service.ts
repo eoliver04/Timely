@@ -47,7 +47,7 @@ export class AppointmetsService {
         schedule_id: scheduleid,
         user_id: clientID,
         status: true,
-        verify: false, // Por defecto pendiente de aprobación
+        verify: 'pending', // Por defecto pendiente de aprobación
       })
       .select()
       .single();
@@ -250,7 +250,7 @@ export class AppointmetsService {
   //chequeo de appointment admin
   async appointmentUpdate(
     appointmentId: string,
-    verify: boolean,
+    verify: 'approved' | 'canceled',
     authHeader: string,
     userId: string,
   ) {
@@ -258,6 +258,11 @@ export class AppointmetsService {
     console.log('[UPDATE APPOINTMENT] Verify value:', verify);
     console.log('[UPDATE APPOINTMENT] Verify type:', typeof verify);
     console.log('[UPDATE APPOINTMENT] User ID:', userId);
+    
+    // Validar que el valor sea válido
+    if (verify !== 'approved' && verify !== 'canceled') {
+      throw new BadRequestException('Invalid verify value. Must be "approved" or "canceled"');
+    }
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       throw new BadRequestException('Invalid authorization header');
@@ -312,9 +317,9 @@ export class AppointmetsService {
     console.log('[UPDATE APPOINTMENT] Success - rows affected:', data?.length);
     console.log('[UPDATE APPOINTMENT] Updated data:', data);
 
-    // Si se rechaza (verify === false), marcar el horario como disponible
-    if (verify === false) {
-      console.log('[UPDATE APPOINTMENT] Marking schedule as available');
+    // Si se cancela, marcar el horario como disponible
+    if (verify === 'canceled') {
+      console.log('[UPDATE APPOINTMENT] Marking schedule as available because appointment was canceled');
       const { error: scheduleError } = await sb
         .from('Schedules')
         .update({ available: true })
@@ -322,6 +327,8 @@ export class AppointmetsService {
 
       if (scheduleError) {
         console.error('[UPDATE APPOINTMENT] Error updating schedule:', scheduleError);
+      } else {
+        console.log('[UPDATE APPOINTMENT] Schedule marked as available');
       }
     }
     
