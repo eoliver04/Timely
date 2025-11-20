@@ -1,5 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { time } from 'console';
+import { uptime } from 'process';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -24,7 +26,14 @@ async function bootstrap() {
       'X-Requested-With'
     ],
     credentials: true,  // Permite cookies y headers de auth
-  })
+  });
+  await app.use('/health',(req,res)=>{
+    res.status(200).json({
+      status:'ok',
+      timestamp: new Date().toISOString(),
+      uptime: uptime()
+    });
+  });
   await app.listen(process.env.PORT ?? 3001);
 }
 bootstrap();
