@@ -27,7 +27,7 @@ async function bootstrap() {
     ],
     credentials: true,  // Permite cookies y headers de auth
   });
-  await app.use('/health',(req,res)=>{
+  app.use('/health',(req,res)=>{
     res.status(200).json({
       status:'ok',
       timestamp: new Date().toISOString(),
