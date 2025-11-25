@@ -11,7 +11,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-Auth%20%26%20DB-3ECF8E?style=flat-square&logo=supabase)](https://supabase.com/)
 
-[Demo en Vivo](https://timely-omega-eight.vercel.app) 
+[Video Demo](https://youtu.be/gZ8YGpNt25I) 
 
 </div>
 
